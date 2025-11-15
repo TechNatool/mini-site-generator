@@ -93,6 +93,47 @@ export async function generateSite(
 }
 
 /**
+ * Génère un placeholder HTML pour une page manquante
+ */
+function generatePlaceholderPage(pageName: string, clientId: string): string {
+  return `<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page manquante - ${pageName}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center">
+  <div class="max-w-2xl mx-auto p-8">
+    <div class="bg-white rounded-lg shadow-xl p-8 text-center">
+      <div class="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
+        <svg class="w-10 h-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+      </div>
+      <h1 class="text-3xl font-bold text-gray-900 mb-4">Page manquante</h1>
+      <p class="text-gray-600 mb-2">La page <strong>${pageName}</strong> n'a pas pu être générée correctement.</p>
+      <p class="text-sm text-gray-500 mb-6">Site ID: ${clientId}</p>
+      <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 text-left">
+        <p class="text-sm text-yellow-800">
+          <strong>Erreur de génération :</strong> Cette page devrait contenir du contenu généré automatiquement,
+          mais une erreur s'est produite pendant le processus de génération.
+        </p>
+      </div>
+      <div class="mt-6">
+        <a href="index.html" class="inline-block px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+          Retour à l'accueil
+        </a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>`;
+}
+
+/**
  * Sauvegarde les fichiers du site généré sur le disque
  */
 export async function saveSiteFiles(
@@ -107,8 +148,60 @@ export async function saveSiteFiles(
     // Créer le dossier du site
     await fs.mkdir(sitePath, { recursive: true });
 
-    // Sauvegarder chaque fichier
+    // Pages requises avec leurs noms de fichiers
+    const requiredPages = [
+      { key: 'home', filename: 'home.html', displayName: 'Accueil' },
+      { key: 'about', filename: 'about.html', displayName: 'À propos' },
+      { key: 'services', filename: 'services.html', displayName: 'Services' },
+      { key: 'pricing', filename: 'pricing.html', displayName: 'Tarifs' },
+      { key: 'contact', filename: 'contact.html', displayName: 'Contact' },
+      { key: 'legal', filename: 'legal.html', displayName: 'Mentions légales' },
+    ];
+
+    // Vérifier et sauvegarder les pages
+    let homeContent: string | null = null;
+    let missingPages = 0;
+
+    for (const page of requiredPages) {
+      const pageContent = site.pages[page.key as keyof typeof site.pages];
+      const filePath = path.join(sitePath, page.filename);
+
+      if (pageContent && pageContent.trim().length > 0) {
+        // Page existe, la sauvegarder
+        await fs.writeFile(filePath, pageContent, 'utf-8');
+        console.log(`[Generator] ✓ Page créée: ${page.filename}`);
+
+        // Sauvegarder le contenu de la page home pour index.html
+        if (page.key === 'home') {
+          homeContent = pageContent;
+        }
+      } else {
+        // Page manquante, créer un placeholder
+        const placeholder = generatePlaceholderPage(page.displayName, site.clientId);
+        await fs.writeFile(filePath, placeholder, 'utf-8');
+        console.warn(`[Generator] ⚠ Placeholder créé pour: ${page.filename}`);
+        missingPages++;
+      }
+    }
+
+    // Créer index.html basé sur home.html
+    if (homeContent) {
+      const indexPath = path.join(sitePath, 'index.html');
+      await fs.writeFile(indexPath, homeContent, 'utf-8');
+      console.log('[Generator] ✓ index.html créé depuis home.html');
+    } else {
+      // Si pas de home.html, créer un index.html placeholder
+      const indexPlaceholder = generatePlaceholderPage('Index', site.clientId);
+      const indexPath = path.join(sitePath, 'index.html');
+      await fs.writeFile(indexPath, indexPlaceholder, 'utf-8');
+      console.warn('[Generator] ⚠ index.html créé avec placeholder');
+    }
+
+    // Sauvegarder les autres fichiers (sitemap, robots.txt)
     for (const file of site.files) {
+      // Ignorer les fichiers HTML déjà traités
+      if (file.path.endsWith('.html')) continue;
+
       const filePath = path.join(sitePath, file.path);
       const fileDir = path.dirname(filePath);
 
@@ -117,26 +210,31 @@ export async function saveSiteFiles(
 
       // Écrire le fichier
       await fs.writeFile(filePath, file.content, 'utf-8');
-      console.log('[Generator] Fichier créé:', file.path);
+      console.log(`[Generator] ✓ Fichier créé: ${file.path}`);
     }
 
-    // Sauvegarder les métadonnées
+    // Sauvegarder les métadonnées enrichies
     const metadataPath = path.join(sitePath, 'metadata.json');
-    await fs.writeFile(
-      metadataPath,
-      JSON.stringify(
-        {
-          clientId: site.clientId,
-          formData: site.formData,
-          createdAt: site.createdAt,
-        },
-        null,
-        2
-      ),
-      'utf-8'
-    );
+    const metadata = {
+      clientId: site.clientId,
+      name: site.formData.name,
+      activity: site.formData.activity,
+      city: site.formData.city,
+      formData: site.formData,
+      createdAt: site.createdAt,
+      generatedPages: requiredPages.map((p) => p.filename),
+      missingPages: missingPages,
+      status: missingPages === 0 ? 'complete' : 'incomplete',
+    };
 
-    console.log('[Generator] Site sauvegardé avec succès dans:', sitePath);
+    await fs.writeFile(metadataPath, JSON.stringify(metadata, null, 2), 'utf-8');
+    console.log('[Generator] ✓ metadata.json créé');
+
+    if (missingPages > 0) {
+      console.warn(`[Generator] ⚠ ${missingPages} page(s) manquante(s) remplacée(s) par des placeholders`);
+    }
+
+    console.log('[Generator] ✓ Site sauvegardé avec succès dans:', sitePath);
     return sitePath;
   } catch (error) {
     console.error('[Generator] Erreur lors de la sauvegarde:', error);
