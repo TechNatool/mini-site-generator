@@ -55,22 +55,28 @@ export async function POST(request: NextRequest) {
 
     // 1. Générer le site
     const site = await generateSite(formData, options);
+    console.log('[API] Site généré - ID:', site.clientId);
 
     // 2. Sauvegarder les fichiers
     const sitePath = await saveSiteFiles(site);
-
     console.log('[API] Site sauvegardé dans:', sitePath);
 
-    // 3. Créer le ZIP
-    const zipPath = path.join(process.cwd(), 'public', 'downloads', `${site.clientId}.zip`);
-    await createZipFromDirectory(sitePath, zipPath);
+    // 3. Créer le ZIP dans public/downloads/
+    const zipFileName = `${site.clientId}.zip`;
+    const zipPath = path.join(process.cwd(), 'public', 'downloads', zipFileName);
 
-    console.log('[API] ZIP créé:', zipPath);
+    console.log('[API] Création du ZIP...');
+    await createZipFromDirectory(sitePath, zipPath, site.clientId);
+    console.log('[API] ZIP créé avec succès:', zipPath);
 
+    // 4. Générer les URLs de retour
     const zipUrl = `/downloads/${site.clientId}.zip`;
-    const previewUrl = `/generated/${site.clientId}/index.html`;
+    const previewUrl = `/preview/${site.clientId}`;
 
-    // 4. Déployer sur Vercel si demandé
+    console.log('[API] ZIP disponible sur:', zipUrl);
+    console.log('[API] Prévisualisation disponible sur:', previewUrl);
+
+    // 5. Déployer sur Vercel si demandé
     let vercelUrl: string | undefined;
     if (options?.autoDeployVercel) {
       console.log('[API] Déploiement Vercel demandé');
@@ -85,7 +91,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 5. Retourner la réponse
+    // 6. Retourner la réponse
     const response: GenerateSiteResponse = {
       success: true,
       clientId: site.clientId,
@@ -95,7 +101,9 @@ export async function POST(request: NextRequest) {
       pages: site.pages,
     };
 
-    console.log('[API] Génération terminée avec succès');
+    console.log('[API] ✓ Génération terminée avec succès');
+    console.log('[API] ✓ Client ID:', site.clientId);
+    console.log('[API] ✓ ZIP URL:', zipUrl);
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {

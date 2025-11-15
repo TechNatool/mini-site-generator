@@ -11,12 +11,16 @@ import path from 'path';
  */
 export async function createZipFromDirectory(
   sourceDir: string,
-  outputPath: string
+  outputPath: string,
+  clientId?: string
 ): Promise<string> {
   return new Promise((resolve, reject) => {
+    console.log('[ZIP] Dossier compressé:', sourceDir);
+
     // Créer le dossier de destination s'il n'existe pas
     const outputDir = path.dirname(outputPath);
     if (!fs.existsSync(outputDir)) {
+      console.log('[ZIP] Création du dossier de destination:', outputDir);
       fs.mkdirSync(outputDir, { recursive: true });
     }
 
@@ -28,7 +32,15 @@ export async function createZipFromDirectory(
 
     // Gestion des événements
     output.on('close', () => {
-      console.log(`[ZIP] Archive créée: ${archive.pointer()} bytes`);
+      const sizeInBytes = archive.pointer();
+      const sizeInMB = (sizeInBytes / (1024 * 1024)).toFixed(2);
+      console.log(`[ZIP] Archive créée: ${sizeInBytes} bytes (${sizeInMB} MB)`);
+
+      // Générer l'URL publique
+      const fileName = path.basename(outputPath);
+      const publicUrl = `/downloads/${fileName}`;
+      console.log('[ZIP] URL publique prête:', publicUrl);
+
       resolve(outputPath);
     });
 

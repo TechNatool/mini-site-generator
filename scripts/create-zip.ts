@@ -16,34 +16,42 @@ if (!clientId) {
 
 async function main() {
   try {
+    console.log(`[Script] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
     console.log(`[Script] Création du ZIP pour le site: ${clientId}`);
+    console.log(`[Script] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
 
+    // Chemins relatifs basés sur process.cwd()
     const sourceDir = path.join(process.cwd(), 'app', 'generated', clientId);
     const outputDir = path.join(process.cwd(), 'public', 'downloads');
     const outputPath = path.join(outputDir, `${clientId}.zip`);
 
+    console.log('[Script] Dossier source:', sourceDir);
+    console.log('[Script] Dossier destination:', outputDir);
+
     // Vérifier que le dossier source existe
     if (!fs.existsSync(sourceDir)) {
-      console.error(`[Script] Le dossier ${sourceDir} n'existe pas`);
+      console.error(`[Script] ✗ Erreur: Le dossier ${sourceDir} n'existe pas`);
       process.exit(1);
     }
 
-    // Créer le dossier de destination
+    // Créer le dossier de destination si nécessaire
     if (!fs.existsSync(outputDir)) {
+      console.log('[Script] Création du dossier public/downloads/...');
       fs.mkdirSync(outputDir, { recursive: true });
     }
 
     // Créer le ZIP
-    await createZipFromDirectory(sourceDir, outputPath);
+    console.log('[Script] Compression en cours...');
+    await createZipFromDirectory(sourceDir, outputPath, clientId);
 
     // Afficher la taille
     const size = await getZipSize(outputPath);
-    console.log(`[Script] ZIP créé avec succès: ${outputPath}`);
-    console.log(`[Script] Taille: ${size} Mo`);
-
-    console.log(`[Script] Téléchargeable sur: /downloads/${clientId}.zip`);
+    console.log(`[Script] ✓ ZIP créé avec succès: ${outputPath}`);
+    console.log(`[Script] ✓ Taille: ${size} MB`);
+    console.log(`[Script] ✓ URL publique: /downloads/${clientId}.zip`);
+    console.log(`[Script] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
   } catch (error) {
-    console.error('[Script] Erreur:', error);
+    console.error('[Script] ✗ Erreur:', error);
     process.exit(1);
   }
 }
