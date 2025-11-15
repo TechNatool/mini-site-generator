@@ -46,13 +46,17 @@ export function generateFormData(config: GenerationConfig) {
   const { activity, city, style } = config;
   const services = servicesBank[activity as keyof typeof servicesBank] || [];
 
+  // Garantir au moins 1 service pour satisfaire la validation API
+  const selectedServices = services.slice(0, 3);
+  const finalServices = selectedServices.length > 0 ? selectedServices : ["Consultation"];
+
   return {
     name: `${activity} ${city}`,
     activity,
     city,
     zipCode: "7100",
     description: `${activity} professionnel à ${city}.`,
-    services: services.slice(0, 3),
+    services: finalServices,
     contact: {
       phone: "+32 470 00 00 00",
       email: "contact@" + activity.toLowerCase() + ".test",
