@@ -16,7 +16,7 @@ export const aboutTemplate: PageTemplate = {
           <h1 class="text-4xl md:text-5xl font-bold font-heading mb-4">
             ${aiContent.about.h1}
           </h1>
-          <p class="text-xl text-primary-100">
+          <p class="text-xl text-white">
             Faites connaissance avec votre ${data.activity} de confiance
           </p>
         </div>
@@ -137,7 +137,7 @@ export const aboutTemplate: PageTemplate = {
           <h2 class="text-3xl md:text-4xl font-bold mb-4">
             Besoin d'un ${data.activity} de confiance ?
           </h2>
-          <p class="text-xl text-primary-100 mb-8">
+          <p class="text-xl text-white mb-8">
             Contactez ${data.name} pour discuter de votre projet
           </p>
           <a

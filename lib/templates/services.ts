@@ -16,7 +16,7 @@ export const servicesTemplate: PageTemplate = {
           <h1 class="text-4xl md:text-5xl font-bold font-heading mb-4">
             Nos Services
           </h1>
-          <p class="text-xl text-primary-100">
+          <p class="text-xl text-white">
             Découvrez l'ensemble de nos prestations de ${data.activity} à ${data.city}
           </p>
         </div>
@@ -158,7 +158,7 @@ export const servicesTemplate: PageTemplate = {
           <h2 class="text-3xl md:text-4xl font-bold mb-4">
             Un projet en tête ?
           </h2>
-          <p class="text-xl text-primary-100 mb-8">
+          <p class="text-xl text-white mb-8">
             Demandez votre devis gratuit et sans engagement
           </p>
           <div class="flex flex-col sm:flex-row gap-4 justify-center">

@@ -16,7 +16,7 @@ export const contactTemplate: PageTemplate = {
           <h1 class="text-4xl md:text-5xl font-bold font-heading mb-4">
             Contactez-nous
           </h1>
-          <p class="text-xl text-primary-100">
+          <p class="text-xl text-white">
             Nous sommes à votre écoute pour répondre à vos besoins
           </p>
         </div>

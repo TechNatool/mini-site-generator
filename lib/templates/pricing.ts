@@ -16,7 +16,7 @@ export const pricingTemplate: PageTemplate = {
           <h1 class="text-4xl md:text-5xl font-bold font-heading mb-4">
             ${aiContent.pricing.h1}
           </h1>
-          <p class="text-xl text-primary-100">
+          <p class="text-xl text-white">
             Tarifs transparents et compétitifs pour tous vos projets
           </p>
         </div>
@@ -196,7 +196,7 @@ export const pricingTemplate: PageTemplate = {
             <h2 class="text-3xl md:text-4xl font-bold mb-4">
               Obtenez votre devis personnalisé
             </h2>
-            <p class="text-xl text-primary-100 mb-8">
+            <p class="text-xl text-white mb-8">
               Gratuit, rapide et sans engagement
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">

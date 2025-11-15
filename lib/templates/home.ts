@@ -17,10 +17,10 @@ export const homeTemplate: PageTemplate = {
             <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold font-heading mb-6">
               ${aiContent.home.h1}
             </h1>
-            <p class="text-xl md:text-2xl text-primary-100 mb-4">
+            <p class="text-xl md:text-2xl text-white mb-4">
               ${aiContent.home.tagline}
             </p>
-            <p class="text-lg text-primary-50 mb-8 max-w-3xl mx-auto">
+            <p class="text-lg text-white mb-8 max-w-3xl mx-auto">
               ${aiContent.home.introduction}
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
@@ -212,7 +212,7 @@ export const homeTemplate: PageTemplate = {
           <h2 class="text-3xl md:text-4xl font-bold mb-4">
             Prêt à démarrer votre projet ?
           </h2>
-          <p class="text-xl text-primary-100 mb-8">
+          <p class="text-xl text-white mb-8">
             Contactez-nous dès maintenant pour un devis gratuit et sans engagement
           </p>
           <div class="flex flex-col sm:flex-row gap-4 justify-center">
