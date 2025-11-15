@@ -1,0 +1,5 @@
+# Ignorer tous les artefacts générés sauf index.html
+*
+!.gitkeep
+!.gitignore
+!index.html
