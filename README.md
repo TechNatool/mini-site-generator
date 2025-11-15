@@ -234,52 +234,150 @@ Génère des suggestions d'images (à venir).
 
 ## Scripts
 
-### Créer un ZIP manuellement
+### Développement
 
 ```bash
-npm run create-zip <clientId>
+npm run dev              # Lancer le serveur de développement
+npm run build            # Build de production
+npm run start            # Lancer le serveur de production
+npm run type-check       # Vérification TypeScript
+npm run lint             # Linter ESLint
+npm run format           # Formatage avec Prettier
 ```
 
-### Déployer sur Vercel manuellement
+### Tests
 
 ```bash
-npm run deploy-vercel <clientId>
+npm run test             # Lancer tous les tests (mode watch)
+npm run test:unit        # Tests unitaires uniquement
+npm run test:integration # Tests d'intégration uniquement
+npm run test:e2e         # Tests End-to-End (Playwright)
+npm run test:coverage    # Tests avec rapport de couverture
+npm run test:watch       # Tests en mode watch
+npm run test:ui          # Interface UI pour les tests
 ```
 
-### Type checking
+#### Tests Unitaires
+
+Les tests unitaires testent les fonctions isolées:
 
 ```bash
-npm run type-check
+npm run test:unit
 ```
 
-### Linting
+Exemple de test:
+```typescript
+// tests/unit/lib/generator.test.ts
+import { generateClientId } from '@/lib/generator';
 
-```bash
-npm run lint
+it('should generate unique ID', () => {
+  const id = generateClientId();
+  expect(id).toMatch(/^site-\d+-[a-z0-9]+$/);
+});
 ```
 
-### Formatage
+#### Tests d'Intégration
+
+Les tests d'intégration testent les API routes:
 
 ```bash
-npm run format
+npm run test:integration
+```
+
+#### Tests E2E
+
+Les tests End-to-End testent le flux complet avec Playwright:
+
+```bash
+npm run test:e2e
+```
+
+Les tests E2E lancent automatiquement le serveur de développement.
+
+Pour débugger les tests E2E:
+```bash
+npx playwright test --debug
+npx playwright test --ui
+```
+
+#### Rapport de Couverture
+
+Générer un rapport de couverture complet:
+
+```bash
+npm run test:coverage
+```
+
+Le rapport HTML est généré dans `coverage/index.html`.
+
+**Seuils de couverture requis:**
+- Statements: 90%
+- Branches: 85%
+- Functions: 90%
+- Lines: 90%
+
+Visualiser le rapport:
+```bash
+# Ouvrir le rapport HTML
+open coverage/index.html  # macOS
+xdg-open coverage/index.html  # Linux
+start coverage/index.html  # Windows
+```
+
+### Documentation
+
+#### Générer la Documentation API
+
+La documentation est générée automatiquement depuis les commentaires JSDoc:
+
+```bash
+npm run docs:generate
+```
+
+La documentation générée se trouve dans `docs-autogen/`.
+
+Visualiser la documentation:
+```bash
+cd docs-autogen
+npx serve
+```
+
+#### Documentation Manuelle
+
+La documentation complète se trouve dans `/docs`:
+
+- **ARCHITECTURE.md** - Architecture technique détaillée
+- **DEVELOPMENT_GUIDE.md** - Guide complet pour développeurs
+- **CONTRIBUTING.md** - Guide de contribution
+- **TESTING_STRATEGY.md** - Stratégie de tests
+- **SECURITY.md** - Politique de sécurité
+- **DEPLOYMENT.md** - Guide de déploiement
+- **SCALABILITY.md** - Architecture scalable
+- **MAINTENANCE.md** - Maintenance et opérations
+
+### Utilitaires
+
+```bash
+npm run create-zip <clientId>       # Créer un ZIP manuellement
+npm run deploy-vercel <clientId>    # Déployer sur Vercel manuellement
 ```
 
 ## Structure du projet
 
 ```
 mini-site-generator/
-├── app/
+├── app/                       # Next.js App Router
 │   ├── api/
-│   │   ├── generate-site/      # API de génération
-│   │   └── generate-images/    # API images
-│   ├── generated/              # Sites générés (non versionné)
+│   │   └── generate-site/     # API de génération
+│   ├── preview/[clientId]/    # Page de prévisualisation
+│   ├── generated/             # Sites générés (gitignored)
 │   ├── layout.tsx
 │   └── page.tsx
 ├── components/
-│   └── FormGenerator.tsx       # Formulaire principal
-├── lib/
+│   └── FormGenerator.tsx      # Formulaire principal
+├── lib/                       # Logique métier
 │   ├── claude-api.ts          # Intégration Claude
-│   ├── generator.ts           # Orchestrateur
+│   ├── generator.ts           # Orchestrateur principal
 │   ├── seo.ts                 # Utilitaires SEO
 │   ├── templates/             # Templates de pages
 │   │   ├── base.ts
@@ -290,18 +388,86 @@ mini-site-generator/
 │   │   ├── contact.ts
 │   │   └── legal.ts
 │   └── utils/
-│       ├── zip.ts            # Création ZIP
-│       └── vercel.ts         # Déploiement Vercel
+│       ├── zip.ts             # Création ZIP
+│       ├── cleanup.ts         # Nettoyage automatique
+│       └── vercel.ts          # Déploiement Vercel
+├── tests/                     # Tests professionnels
+│   ├── unit/                  # Tests unitaires (60%)
+│   │   ├── lib/
+│   │   └── components/
+│   ├── integration/           # Tests d'intégration (30%)
+│   ├── e2e/                   # Tests E2E (10%)
+│   ├── regression/            # Tests de non-régression
+│   ├── security/              # Tests de sécurité
+│   ├── fixtures/              # Données de test
+│   └── setup.ts               # Configuration globale
+├── docs/                      # Documentation complète
+│   ├── ARCHITECTURE.md
+│   ├── DEVELOPMENT_GUIDE.md
+│   ├── CONTRIBUTING.md
+│   ├── TESTING_STRATEGY.md
+│   ├── SECURITY.md
+│   ├── DEPLOYMENT.md
+│   ├── SCALABILITY.md
+│   └── MAINTENANCE.md
+├── docs-autogen/              # Documentation générée (TypeDoc)
 ├── scripts/
 │   ├── create-zip.ts
 │   └── deploy-vercel.ts
-├── types/
+├── types/                     # Types TypeScript
 │   ├── generator.ts
 │   ├── templates.ts
 │   └── api.ts
-├── context.md                # Documentation architecture
+├── .github/                   # CI/CD et templates
+│   ├── workflows/
+│   │   ├── ci.yml             # Tests automatiques
+│   │   └── deploy.yml         # Déploiement
+│   ├── ISSUE_TEMPLATE/
+│   └── PULL_REQUEST_TEMPLATE.md
+├── public/
+│   └── downloads/             # ZIPs téléchargeables (gitignored)
+├── coverage/                  # Rapports de couverture (gitignored)
+├── vitest.config.ts           # Configuration Vitest
+├── playwright.config.ts       # Configuration Playwright
+├── typedoc.json              # Configuration TypeDoc
+├── CONVENTIONS.md            # Conventions de code
+├── AI_HANDOVER.md            # Guide pour Claude Code AI
+├── context.md                # Architecture complète
 └── README.md
 ```
+
+## Qualité et CI/CD
+
+### Standards de Qualité
+
+Le projet suit des standards professionnels stricts:
+
+- ✅ **TypeScript strict mode** : Type-safety complet
+- ✅ **ESLint** : Linting automatique
+- ✅ **Prettier** : Formatage cohérent
+- ✅ **Tests** : Couverture >= 90%
+- ✅ **Documentation** : Complète et à jour
+- ✅ **Conventional Commits** : Messages normalisés
+
+### CI/CD Automatique
+
+Chaque Pull Request déclenche automatiquement:
+
+1. **Type Checking** : Vérification TypeScript
+2. **Linting** : ESLint sur tout le code
+3. **Tests** : Tous les tests (unit + integration + E2E)
+4. **Coverage** : Vérification >= 90%
+5. **Build** : Compilation réussie
+6. **Security** : npm audit + secret scanning
+
+Les tests tournent sur Node.js 18 et 20 pour garantir la compatibilité.
+
+### Badges de Qualité
+
+[![Tests](https://github.com/TechNatool/mini-site-generator/actions/workflows/ci.yml/badge.svg)](https://github.com/TechNatool/mini-site-generator/actions/workflows/ci.yml)
+[![Coverage](https://codecov.io/gh/TechNatool/mini-site-generator/branch/main/graph/badge.svg)](https://codecov.io/gh/TechNatool/mini-site-generator)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.4-blue)](https://www.typescriptlang.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Développement
 
@@ -356,20 +522,61 @@ Le projet peut être déployé sur toute plateforme supportant Next.js :
 
 ## Contribution
 
+Nous accueillons les contributions! Consultez [CONTRIBUTING.md](docs/CONTRIBUTING.md) pour le guide complet.
+
 ### Workflow
 
-1. Fork le projet
-2. Créer une branche (`git checkout -b feature/ma-fonctionnalite`)
-3. Commit (`git commit -m 'Ajout de ma fonctionnalité'`)
-4. Push (`git push origin feature/ma-fonctionnalite`)
-5. Ouvrir une Pull Request
+1. **Fork** le projet
+2. **Clone** votre fork
+3. **Branch** : `git checkout -b feature/ma-fonctionnalite`
+4. **Develop** en suivant les conventions
+5. **Test** : `npm run test && npm run test:coverage`
+6. **Lint** : `npm run lint && npm run type-check`
+7. **Commit** : Messages [Conventional Commits](https://www.conventionalcommits.org/)
+8. **Push** : `git push origin feature/ma-fonctionnalite`
+9. **PR** : Ouvrir une Pull Request avec le template
 
-### Conventions de code
+### Conventional Commits
 
-- TypeScript strict
-- Utiliser Prettier pour le formatage
-- Commenter les fonctions complexes
-- Suivre les conventions définies dans `context.md`
+Format obligatoire:
+```
+type(scope): description courte
+
+feat: Nouvelle fonctionnalité
+fix: Correction de bug
+docs: Documentation
+test: Tests
+refactor: Refactorisation
+chore: Maintenance
+```
+
+Exemples:
+```bash
+git commit -m "feat(generator): add PDF export support"
+git commit -m "fix(api): handle missing contact fields"
+git commit -m "docs: update installation guide"
+```
+
+### Checklist Avant PR
+
+- [ ] Tests passent : `npm run test`
+- [ ] Coverage >= 90% : `npm run test:coverage`
+- [ ] Lint OK : `npm run lint`
+- [ ] Type-check OK : `npm run type-check`
+- [ ] Build OK : `npm run build`
+- [ ] Documentation à jour
+- [ ] Commit messages Conventional
+- [ ] Pas de secrets dans le code
+
+### Standards de Code
+
+- **TypeScript** : Strict mode, pas de `any`
+- **Nommage** : camelCase (variables), PascalCase (types/composants)
+- **Imports** : Ordre: externe > interne > types
+- **Tests** : TDD recommandé, AAA pattern
+- **Documentation** : JSDoc pour les fonctions complexes
+
+Voir [CONVENTIONS.md](CONVENTIONS.md) pour les détails complets.
 
 ## Licence
 
@@ -384,5 +591,13 @@ Pour toute question :
 
 ---
 
-**Dernière mise à jour** : 2025-11-14
-**Version** : 1.0.0
+**Dernière mise à jour** : 2025-11-15
+**Version** : 1.0.0 (Industrialized)
+**Status** : Production Ready ✅
+
+**Stack Complète:**
+- Tests: Vitest + Playwright
+- Coverage: >= 90% requis
+- CI/CD: GitHub Actions
+- Documentation: TypeDoc + Markdown
+- Quality: ESLint + Prettier + TypeScript strict

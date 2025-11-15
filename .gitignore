@@ -5,6 +5,9 @@ node_modules/
 
 # Testing
 coverage/
+test-results/
+playwright-report/
+.playwright/
 
 # Next.js
 .next/
@@ -41,6 +44,9 @@ next-env.d.ts
 # Generated sites
 app/generated/*/
 public/downloads/*.zip
+
+# Generated documentation
+docs-autogen/
 
 # Temporary files
 tmp/
