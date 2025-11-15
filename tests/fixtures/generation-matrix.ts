@@ -47,24 +47,21 @@ export function generateFormData(config: GenerationConfig) {
   const services = servicesBank[activity as keyof typeof servicesBank] || [];
 
   return {
-    name: `${activity} Pro ${city}`,
+    name: `${activity} ${city}`,
     activity,
     city,
-    zipCode: city === "Braine-le-Comte" ? "7090" : city === "Mons" ? "7000" : "1400",
-    services,
+    zipCode: "7100",
+    description: `${activity} professionnel à ${city}.`,
+    services: services.slice(0, 3),
     contact: {
-      phone: "0477 12 34 56",
-      email: `contact@${activity.toLowerCase()}-${city.toLowerCase().replace(/\s/g, '')}.be`,
-      address: `Rue Exemple ${Math.floor(Math.random() * 100)}`,
+      phone: "+32 470 00 00 00",
+      email: "contact@" + activity.toLowerCase() + ".test",
+      address: "Rue du Test 123"
     },
-    style,
     colors: {
-      primary: style === "moderne"
-        ? { 600: "#0284c7", 700: "#0369a1" }
-        : style === "classique"
-        ? { 600: "#059669", 700: "#047857" }
-        : { 600: "#7c3aed", 700: "#6d28d9" },
-      secondary: { 600: "#ec4899", 700: "#db2777" },
+      primary: "#1E40AF",
+      secondary: "#60A5FA"
     },
+    style
   };
 }
