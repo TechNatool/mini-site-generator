@@ -2,13 +2,12 @@
  * Vitest global setup
  */
 
-import { beforeAll, afterAll, afterEach } from 'vitest';
+import { beforeAll, afterAll, afterEach, vi } from 'vitest';
 
 // Setup before all tests
 beforeAll(() => {
   // Set test environment variables
-  process.env.NODE_ENV = 'test';
-  process.env.ANTHROPIC_API_KEY = 'test-api-key';
+  process.env = { ...process.env, NODE_ENV: 'test', ANTHROPIC_API_KEY: 'test-api-key' };
 });
 
 // Cleanup after each test

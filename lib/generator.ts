@@ -30,7 +30,7 @@ export function generateClientId(): string {
  */
 export async function generateSite(
   formData: FormData,
-  options: GenerationOptions = {
+  _options: GenerationOptions = {
     generateImages: false,
     autoDeployVercel: false,
   }

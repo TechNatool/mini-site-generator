@@ -174,7 +174,7 @@ export function generateContactPageSchema(data: FormData): StructuredData {
 /**
  * Génère le sitemap.xml complet
  */
-export function generateSitemap(clientId: string, baseUrl: string): string {
+export function generateSitemap(_clientId: string, baseUrl: string): string {
   const pages = ['', 'about', 'services', 'pricing', 'contact', 'legal'];
   const now = new Date().toISOString();
 

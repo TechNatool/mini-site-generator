@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
 
     // Parser le body
     const body = (await request.json()) as GenerateImagesRequest;
-    const { activity, style, count = 3 } = body;
+    const { activity, style } = body;
 
     // Validation
     if (!activity || !style) {

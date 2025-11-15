@@ -12,7 +12,7 @@ import path from 'path';
 export async function createZipFromDirectory(
   sourceDir: string,
   outputPath: string,
-  clientId?: string
+  _clientId?: string
 ): Promise<string> {
   return new Promise((resolve, reject) => {
     console.log('[ZIP] Dossier compressé:', sourceDir);
