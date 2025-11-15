@@ -8,7 +8,7 @@
  */
 export async function deployToVercel(
   sitePath: string,
-  projectName: string
+  _projectName: string
 ): Promise<{ success: boolean; url?: string; error?: string }> {
   try {
     const vercelToken = process.env.VERCEL_TOKEN;
@@ -24,7 +24,7 @@ export async function deployToVercel(
     // TODO: Implémenter le déploiement via l'API Vercel
     // Documentation: https://vercel.com/docs/rest-api
 
-    console.log('[Vercel] Déploiement en cours...', { sitePath, projectName });
+    console.log('[Vercel] Déploiement en cours...', { sitePath, projectName: _projectName });
 
     // Pour l'instant, retourner un placeholder
     return {
@@ -44,7 +44,7 @@ export async function deployToVercel(
  * Crée un nouveau projet Vercel
  */
 export async function createVercelProject(
-  projectName: string
+  _projectName: string
 ): Promise<{ success: boolean; projectId?: string; error?: string }> {
   try {
     const vercelToken = process.env.VERCEL_TOKEN;
