@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { generateSite, saveSiteFiles } from '@/lib/generator';
 import { createZipFromDirectory } from '@/lib/utils/zip';
 import { deployToVercel, generateVercelProjectName } from '@/lib/utils/vercel';
+import { cleanupOldFiles } from '@/lib/utils/cleanup';
 import type { GenerateSiteRequest, GenerateSiteResponse } from '@/types/api';
 import path from 'path';
 
@@ -104,6 +105,11 @@ export async function POST(request: NextRequest) {
     console.log('[API] ✓ Génération terminée avec succès');
     console.log('[API] ✓ Client ID:', site.clientId);
     console.log('[API] ✓ ZIP URL:', zipUrl);
+
+    // 7. Nettoyage automatique des anciens fichiers (async, non-bloquant)
+    cleanupOldFiles(24).catch((err) => {
+      console.error('[API] Erreur lors du nettoyage automatique:', err);
+    });
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
