@@ -1,4 +1,5 @@
 {
+  "$schema": "https://typedoc.org/schema.json",
   "entryPoints": ["lib", "types", "components"],
   "entryPointStrategy": "expand",
   "out": "docs-autogen",
@@ -10,24 +11,28 @@
   ],
   "plugin": ["typedoc-plugin-markdown"],
   "readme": "README.md",
+  "githubPages": false,
+  "navigation": {
+    "includeCategories": true,
+    "includeGroups": true,
+    "includeFolders": true
+  },
   "categorizeByGroup": true,
-  "categoryOrder": [
+  "groupOrder": [
     "Generator",
     "Templates",
     "Utilities",
     "Types",
     "*"
   ],
-  "navigation": {
-    "includeCategories": true,
-    "includeGroups": true
-  },
   "sort": ["source-order"],
   "kindSortOrder": [
     "Class",
     "Interface",
-    "Type",
+    "TypeAlias",
     "Function",
     "Variable"
-  ]
+  ],
+  "includeVersion": true,
+  "cleanOutputDir": true
 }
