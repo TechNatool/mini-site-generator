@@ -1,0 +1,33 @@
+{
+  "entryPoints": ["lib", "types", "components"],
+  "entryPointStrategy": "expand",
+  "out": "docs-autogen",
+  "exclude": [
+    "**/node_modules/**",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/tests/**"
+  ],
+  "plugin": ["typedoc-plugin-markdown"],
+  "readme": "README.md",
+  "categorizeByGroup": true,
+  "categoryOrder": [
+    "Generator",
+    "Templates",
+    "Utilities",
+    "Types",
+    "*"
+  ],
+  "navigation": {
+    "includeCategories": true,
+    "includeGroups": true
+  },
+  "sort": ["source-order"],
+  "kindSortOrder": [
+    "Class",
+    "Interface",
+    "Type",
+    "Function",
+    "Variable"
+  ]
+}

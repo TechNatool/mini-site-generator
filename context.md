@@ -584,6 +584,283 @@ ZIP_STORAGE_PATH=/tmp/generated-sites
 
 ---
 
+## 🏭 Industrialisation et Qualité
+
+### Vue d'ensemble
+
+Le projet suit des standards professionnels stricts pour garantir qualité, maintenabilité et scalabilité.
+
+### Documentation complète
+
+#### Documentation interne (`/docs`)
+- **ARCHITECTURE.md** : Architecture technique détaillée avec diagrammes
+- **DEVELOPMENT_GUIDE.md** : Guide complet pour les développeurs
+- **CONTRIBUTING.md** : Conventions et workflow de contribution
+- **TESTING_STRATEGY.md** : Stratégie de tests (unit, integration, E2E)
+- **SECURITY.md** : Politique de sécurité et best practices
+- **DEPLOYMENT.md** : Guide de déploiement (Vercel, Docker, AWS)
+- **SCALABILITY.md** : Architecture scalable pour 10K-100K+ sites/jour
+- **MAINTENANCE.md** : Routines de maintenance automatique
+
+#### Documentation générée (`/docs-autogen`)
+- Configuration TypeDoc pour génération automatique
+- Documentation API à partir des commentaires JSDoc
+- Mise à jour automatique avec `npm run docs:generate`
+
+#### Documentation pour IA
+- **AI_HANDOVER.md** : Guide complet pour Claude Code AI
+  - Comment analyser le projet
+  - Conventions strictes à respecter
+  - Patterns de développement
+  - Checklist avant commit
+  - Prompts spécialisés
+
+### Tests professionnels
+
+#### Structure (`/tests`)
+```
+tests/
+├── unit/                    # Tests unitaires (60%)
+│   ├── lib/
+│   │   ├── generator.test.ts
+│   │   ├── claude-api.test.ts
+│   │   ├── seo.test.ts
+│   │   └── utils/
+│   └── components/
+├── integration/             # Tests d'intégration (30%)
+│   ├── api/
+│   └── workflows/
+├── e2e/                     # Tests E2E (10%)
+│   ├── generation.spec.ts
+│   └── preview.spec.ts
+├── regression/              # Tests de non-régression
+│   ├── snapshots/
+│   └── visual/
+└── security/                # Tests de sécurité
+    ├── xss.test.ts
+    └── auth.test.ts
+```
+
+#### Outils
+- **Vitest** : Tests unitaires et d'intégration
+- **Playwright** : Tests E2E
+- **Istanbul** : Coverage reporting
+- **MSW** : Mock Service Worker
+
+#### Couverture requise
+- Statements: 90%
+- Branches: 85%
+- Functions: 90%
+- Lines: 90%
+
+#### Commandes
+```bash
+npm run test              # Tous les tests
+npm run test:unit         # Tests unitaires
+npm run test:integration  # Tests d'intégration
+npm run test:e2e          # Tests E2E
+npm run test:coverage     # Rapport de couverture
+```
+
+### CI/CD (GitHub Actions)
+
+#### Workflows
+- **ci.yml** : Tests, lint, coverage à chaque PR/push
+  - Type checking
+  - ESLint
+  - Tests avec matrice Node.js (18.x, 20.x)
+  - Coverage verification (>= 90%)
+  - Build verification
+
+- **deploy.yml** : Déploiement automatique
+  - Deploy sur Vercel (production)
+  - Création de releases GitHub
+
+- **security.yml** : Audits de sécurité
+  - npm audit
+  - Secret scanning (TruffleHog)
+  - Dependency updates (Dependabot)
+
+#### Protection des branches
+- PR requise pour merge vers main
+- Tests obligatoires
+- Review obligatoire
+- Coverage >= 90%
+
+### Qualité de code
+
+#### ESLint
+- Configuration stricte (`.eslintrc.json`)
+- TypeScript règles strictes
+- No `any` type
+- Unused variables détectés
+
+#### Prettier
+- Formatage automatique (`.prettierrc`)
+- Cohérence du style de code
+- Integration VSCode/IDE
+
+#### TypeScript
+- Strict mode enabled
+- No implicit any
+- Strict null checks
+- Unused locals/parameters detected
+
+### Conventions strictes
+
+#### Commits (Conventional Commits)
+```bash
+feat(generator): add PDF export
+fix(api): handle missing fields
+docs: update README
+refactor(cleanup): improve performance
+test(generator): add unit tests
+```
+
+#### Nommage
+- Variables/fonctions: `camelCase`
+- Types/Interfaces: `PascalCase`
+- Constantes: `UPPER_SNAKE_CASE`
+- Composants: `PascalCase`
+- Fichiers: `kebab-case.ts` ou `PascalCase.tsx`
+
+#### Logging
+```typescript
+console.log('[Module] ✓ Success');
+console.warn('[Module] ⚠ Warning');
+console.error('[Module] ✗ Error');
+```
+
+### Templates GitHub
+
+#### Pull Requests
+- Template complet (`.github/PULL_REQUEST_TEMPLATE.md`)
+- Checklist obligatoire
+- Tests requis
+- Documentation à jour
+
+#### Issues
+- Bug report template
+- Feature request template
+- Labels standardisés
+- Assignation automatique
+
+### Infrastructure (`/infra`)
+
+#### Scripts de scaling
+- Nettoyage automatique
+- Backup automatique
+- Monitoring et métriques
+- Health checks
+
+#### Maintenance automatique
+- Cleanup quotidien (>24h)
+- Rotation des logs
+- Backup métadonnées
+- Monitoring performance
+
+### Sécurité
+
+#### Mesures actives
+- Input validation (Zod schemas)
+- XSS prevention (HTML escaping)
+- Path traversal protection
+- Environment variables sécurisées
+- Sandbox iframe
+- HTTPS obligatoire en production
+
+#### Audits automatiques
+- npm audit (CI/CD)
+- Secret scanning (TruffleHog)
+- Dependency updates (Dependabot)
+- Security advisories monitoring
+
+### Scalabilité
+
+#### Architecture actuelle
+- Génération synchrone
+- Filesystem storage
+- Single instance
+- ~10,000 sites max
+
+#### Architecture future (>100K/jour)
+- Queue système (Bull/BullMQ)
+- Worker pool (auto-scaling)
+- Redis cache
+- PostgreSQL metadata
+- S3/R2 object storage
+- Multi-region deployment
+- CDN (CloudFront/Cloudflare)
+
+### Monitoring et observabilité
+
+#### Métriques clés
+- Générations par seconde
+- Temps de génération moyen
+- Taux d'erreur
+- Taille de la queue
+- Utilisation disque/mémoire
+- Coût API Claude
+
+#### Outils recommandés
+- Logs structurés (Winston/Pino)
+- Metrics (Prometheus + Grafana)
+- Tracing (OpenTelemetry)
+- Alerting (PagerDuty)
+- Error tracking (Sentry)
+
+### Process de développement
+
+#### Workflow
+1. **Issue** : Créer/assigner issue
+2. **Branch** : `feature/`, `fix/`, `docs/`
+3. **Develop** : TDD, code, doc
+4. **Tests** : Local tests passing
+5. **Commit** : Conventional Commits
+6. **PR** : Template, review
+7. **CI/CD** : Auto-tests, deploy
+8. **Merge** : Squash/rebase
+
+#### Checklist développeur
+```bash
+- [ ] Code type-safe (npm run type-check)
+- [ ] Code linté (npm run lint)
+- [ ] Tests passent (npm run test)
+- [ ] Coverage >= 90%
+- [ ] Build réussit (npm run build)
+- [ ] Documentation à jour
+- [ ] Commit Conventional
+- [ ] Pas de secrets
+- [ ] Tests manuels OK
+```
+
+### Déploiement
+
+#### Environnements
+- **Development** : Local (`npm run dev`)
+- **Staging** : Vercel preview
+- **Production** : Vercel production
+
+#### Stratégie
+- Auto-deploy main branch
+- Preview deploys for PRs
+- Rollback en 1 clic
+- Health checks post-deploy
+
+### Backup et Recovery
+
+#### Automatisé
+- Métadonnées : Backup quotidien → S3
+- Logs : Rotation 30 jours
+- Database : Backup quotidien (si PostgreSQL)
+
+#### Recovery
+- RTO (Recovery Time Objective): < 1 heure
+- RPO (Recovery Point Objective): < 24 heures
+- Procédures documentées (MAINTENANCE.md)
+
+---
+
 ## 📖 Glossaire
 
 - **Artisan** : Professionnel indépendant (plombier, électricien, maçon, etc.)
@@ -606,6 +883,6 @@ ZIP_STORAGE_PATH=/tmp/generated-sites
 
 ---
 
-**Dernière mise à jour** : 2025-11-14
-**Version** : 1.0.0
-**Mainteneur** : IA Architect
+**Dernière mise à jour** : 2025-11-15
+**Version** : 1.0.0 (Industrialized)
+**Mainteneur** : IA Architect + Claude Code AI
