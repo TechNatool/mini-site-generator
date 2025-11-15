@@ -33,7 +33,13 @@ test.describe('Génération de la matrice de 27 sites', () => {
       console.log(`   Style: ${config.style}`);
 
       const response = await request.post(`${BASE_URL}/api/generate-site`, {
-        data: formData,
+        data: {
+          formData,
+          options: {
+            autoDeployVercel: false,
+            generateImages: false
+          }
+        },
         timeout: 120000, // 2 minutes
       });
 
