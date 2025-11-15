@@ -237,7 +237,7 @@ export function generateBaseHTML({
     }
   </style>
 </head>
-<body class="antialiased">
+<body class="antialiased bg-gray-50 text-gray-900">
   ${generateHeader(formData, currentPage)}
 
   <main>
