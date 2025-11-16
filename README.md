@@ -444,6 +444,221 @@ Les tests vérifient :
 "introduction": "Expert plombier à Paris depuis 15 ans, Jean Dupont intervient pour tous vos besoins en plomberie. Dépannage urgent 24h/24, installations sanitaires et maintenance préventive dans tout Paris."
 ```
 
+## Auto-Images AI (Admin Panel)
+
+Le projet dispose d'un système de **génération automatique d'images** avec optimisation et alt-text SEO pour les sites générés.
+
+### Accès
+
+Interface accessible via : **`/admin/image-settings`**
+
+### Fonctionnalités
+
+Le panneau Auto-Images AI permet de :
+
+1. **Choisir le provider d'images** 🎨
+   - **Claude (Coming Soon)** : Génération IA premium (pas encore disponible)
+   - **Local AI (Stable Diffusion)** : Génération locale gratuite
+   - **None (Placeholder)** : Images SVG placeholder rapides
+
+2. **Configuration de l'optimisation** ⚙️
+   - Taille : 512px à 1920px (slider)
+   - Format : WebP / JPEG / PNG
+   - Qualité : 1% à 100% (slider)
+   - Activer/Désactiver l'optimisation
+
+3. **Alt-text automatique pour le SEO** 📝
+   - Génération automatique basée sur le contexte
+   - Optimisé pour l'accessibilité et le référencement
+   - Adapté à chaque page (home, services, about, etc.)
+
+### Configuration persistée
+
+Les paramètres sont sauvegardés dans `.config/image-settings.json` et persistent entre les redémarrages.
+
+Exemple de fichier :
+```json
+{
+  "provider": "local",
+  "size": 1080,
+  "format": "webp",
+  "quality": 85,
+  "optimize": true,
+  "autoAltText": true
+}
+```
+
+### Comment ça fonctionne
+
+1. **Génération du prompt** : Création d'un prompt adapté à chaque page
+2. **Appel au provider** : Claude, Local AI, ou placeholder selon config
+3. **Optimisation** : Compression, resize, conversion de format
+4. **Alt-text** : Génération automatique pour SEO et accessibilité
+5. **Sauvegarde** : Images optimisées enregistrées dans `/public/generated/`
+
+### Pipeline d'optimisation
+
+Le système utilise **Sharp** pour optimiser les images :
+
+- **Resize** : Redimensionnement avec aspect ratio préservé
+- **Compression** : WebP (meilleur ratio), JPEG (compatibilité), PNG (qualité)
+- **Métadonnées** : Suppression des données EXIF pour réduire la taille
+- **Qualité** : Contrôle fin de 1% à 100%
+
+Exemple de réduction :
+```
+Original: 3.5 MB (3000×3000 PNG)
+Optimized: 187 KB (1080×1080 WebP 85%)
+Reduction: 95% de taille en moins
+```
+
+### Providers d'images
+
+#### Claude (Coming Soon)
+- Génération IA premium via Anthropic
+- Meilleure qualité visuelle
+- Nécessite crédits API
+- **Statut** : Pas encore disponible
+
+#### Local AI (Stable Diffusion)
+- Fonctionne avec Stable Diffusion local
+- Gratuit et privé
+- Nécessite serveur local à `localhost:7860`
+
+Configuration :
+```bash
+# Variable d'environnement optionnelle
+STABLE_DIFFUSION_URL=http://localhost:7860/sdapi/v1/txt2img
+
+# Installer Stable Diffusion Web UI
+git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui
+cd stable-diffusion-webui
+./webui.sh
+
+# Accessible sur http://localhost:7860
+```
+
+#### None (Placeholder)
+- Images SVG placeholder minimalistes
+- Texte adapté au contenu
+- Rapide et léger
+- Parfait pour développement/tests
+
+### Alt-text automatique
+
+L'alt-text est généré automatiquement en fonction du contexte :
+
+| Page | Exemple d'alt-text |
+|------|-------------------|
+| Home | "Plombier professionnel à Paris - Vue d'ensemble des services" |
+| Services | "Plombier professionnel à Paris - Services et prestations" |
+| About | "Plombier professionnel à Paris - Équipe et expertise" |
+| Contact | "Plombier professionnel à Paris - Contact et localisation" |
+
+### Utilisation
+
+```bash
+# 1. Démarrer le serveur
+npm run dev
+
+# 2. Ouvrir le panneau Images AI
+http://localhost:3000/admin/image-settings
+
+# 3. Configurer provider, taille, format, qualité
+
+# 4. Générer un site - les images seront créées automatiquement
+```
+
+### API
+
+Le panneau utilise l'API REST `/api/admin/image-settings` :
+
+**GET** : Récupère les paramètres actuels
+```bash
+curl http://localhost:3000/api/admin/image-settings
+```
+
+Réponse :
+```json
+{
+  "source": "config-file",
+  "settings": {
+    "provider": "local",
+    "size": 1080,
+    "format": "webp",
+    "quality": 85,
+    "optimize": true,
+    "autoAltText": true
+  }
+}
+```
+
+**PUT** : Sauvegarde de nouveaux paramètres
+```bash
+curl -X PUT http://localhost:3000/api/admin/image-settings \
+  -H "Content-Type: application/json" \
+  -d '{
+    "provider": "local",
+    "size": 1080,
+    "format": "webp",
+    "quality": 85,
+    "optimize": true,
+    "autoAltText": true
+  }'
+```
+
+**DELETE** : Réinitialise les paramètres par défaut
+```bash
+curl -X DELETE http://localhost:3000/api/admin/image-settings
+```
+
+### Tests
+
+Pour tester le module Images AI :
+
+```bash
+# Tests de configuration
+npm run test:unit -- tests/unit/admin/image-settings.test.ts
+
+# Tests de génération IA
+npm run test:unit -- tests/unit/lib/image-ai.test.ts
+
+# Tests d'optimisation
+npm run test:unit -- tests/unit/lib/image-optimizer.test.ts
+```
+
+Les tests vérifient :
+- Chargement et sauvegarde des paramètres
+- Validation des providers (claude, local, none)
+- Validation des formats (webp, jpg, png)
+- Validation taille (128-4096px) et qualité (1-100%)
+- Génération d'images avec chaque provider
+- Optimisation et compression
+- Création de placeholders
+- Génération d'alt-text
+- Gestion d'erreurs et fallback
+
+### Contraintes
+
+- ✅ **Compatible NO_AI** : Si `NO_AI=true`, utilise toujours des placeholders
+- ✅ **Optimisation optionnelle** : Peut être désactivée si besoin
+- ✅ **Formats multiples** : WebP, JPEG, PNG supportés
+- ✅ **Graceful degradation** : Fallback vers placeholder en cas d'erreur
+- ✅ **Performance** : Réduction jusqu'à 95% de la taille des images
+
+### Exemple de prompts générés
+
+```javascript
+// Page d'accueil
+"Professional Plombier storefront in Paris, high quality photo, professional, well-lit, inviting atmosphere, modern equipment"
+
+// Page services
+"Plombier at work providing quality service, professional photography, detailed tools and equipment, clean workspace, expert in action"
+
+// Page à propos
+"Professional team of Plombier in Paris, friendly and approachable, modern office or workshop, professional headshots style"
+```
+
 ### Personnalisation
 
 #### Ajouter une nouvelle activité
