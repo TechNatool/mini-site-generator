@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { generateSiteContent } from '@/lib/claude-api';
 import { generateSite } from '@/lib/generator';
 import type { FormData } from '@/types/generator';
@@ -20,7 +20,8 @@ describe('NO_AI Mode', () => {
       primary: '#1E40AF',
       secondary: '#60A5FA',
     },
-    style: 'moderne',
+    style: 'modern',
+    languages: ['fr'],
   };
 
   let originalEnv: string | undefined;

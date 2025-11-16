@@ -4,6 +4,8 @@
 
 import Anthropic from '@anthropic-ai/sdk';
 import { FormData, AIGeneratedContent } from '@/types/generator';
+import { getAIProvider } from './ai-provider';
+import { generateWithLocalModel } from './local-ai';
 
 // Vérifier que la clé API est présente
 const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -21,14 +23,31 @@ const MODEL = process.env.CLAUDE_MODEL || 'claude-3-5-sonnet-20241022';
  * Génère tout le contenu du site via Claude API
  */
 export async function generateSiteContent(formData: FormData): Promise<AIGeneratedContent> {
+  const provider = getAIProvider();
+
   // Mode NO_AI : utiliser directement le fallback content sans appeler l'API
-  if (process.env.NO_AI === 'true') {
-    console.log('[Claude API] 🚫 Mode NO_AI activé → contenu de fallback utilisé (aucune requête Anthropic)');
+  if (provider === 'none') {
+    console.log('[AI] 🚫 NO_AI=true → fallback local');
     return generateFallbackContent(formData);
   }
 
   const prompt = buildContentGenerationPrompt(formData);
 
+  // Provider local (Ollama/DeepSeek)
+  if (provider === 'local') {
+    console.log('[AI] 💻 Using local AI provider (Ollama/DeepSeek)');
+    try {
+      const response = await generateWithLocalModel(prompt);
+      return parseAIResponse(response, formData);
+    } catch (error) {
+      console.error('[Local AI] Erreur lors de la génération de contenu:', error);
+      console.warn('[Local AI] Fallback vers contenu par défaut');
+      return generateFallbackContent(formData);
+    }
+  }
+
+  // Provider Claude (par défaut)
+  console.log('[AI] 🤖 Using Claude provider');
   try {
     const response = await anthropic.messages.create({
       model: MODEL,
@@ -240,14 +259,18 @@ export async function generateImagePrompts(
   activity: string,
   style: string
 ): Promise<{ hero: string; about: string; services: string }> {
+  const provider = getAIProvider();
+
+  const fallbackPrompts = {
+    hero: `Professional ${activity} at work, modern and clean`,
+    about: `Portrait of professional ${activity}, friendly and trustworthy`,
+    services: `${activity} tools and equipment, professional setup`,
+  };
+
   // Mode NO_AI : retourner directement le fallback sans appeler l'API
-  if (process.env.NO_AI === 'true') {
-    console.log('[Claude API] 🚫 Mode NO_AI activé → prompts images par défaut (aucune requête Anthropic)');
-    return {
-      hero: `Professional ${activity} at work, modern and clean`,
-      about: `Portrait of professional ${activity}, friendly and trustworthy`,
-      services: `${activity} tools and equipment, professional setup`,
-    };
+  if (provider === 'none') {
+    console.log('[AI] 🚫 NO_AI=true → prompts images par défaut');
+    return fallbackPrompts;
   }
 
   const prompt = `Génère 3 descriptions courtes pour des images professionnelles d'un site web de ${activity}.
@@ -263,6 +286,24 @@ Format JSON :
 Les descriptions doivent être professionnelles, modernes et adaptées à l'activité.
 Retourne UNIQUEMENT le JSON.`;
 
+  // Provider local
+  if (provider === 'local') {
+    console.log('[AI] 💻 Using local AI provider for image prompts');
+    try {
+      const response = await generateWithLocalModel(prompt);
+      const cleanedResponse = response
+        .replace(/```json\n?/g, '')
+        .replace(/```\n?/g, '')
+        .trim();
+      return JSON.parse(cleanedResponse);
+    } catch (error) {
+      console.error('[Local AI] Erreur génération prompts images:', error);
+      return fallbackPrompts;
+    }
+  }
+
+  // Provider Claude
+  console.log('[AI] 🤖 Using Claude provider for image prompts');
   try {
     const response = await anthropic.messages.create({
       model: MODEL,
@@ -283,10 +324,6 @@ Retourne UNIQUEMENT le JSON.`;
     return JSON.parse(cleanedResponse);
   } catch (error) {
     console.error('[Claude API] Erreur génération prompts images:', error);
-    return {
-      hero: `Professional ${activity} at work, modern and clean`,
-      about: `Portrait of professional ${activity}, friendly and trustworthy`,
-      services: `${activity} tools and equipment, professional setup`,
-    };
+    return fallbackPrompts;
   }
 }
