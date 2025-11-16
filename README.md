@@ -2053,6 +2053,369 @@ Tous les templates utilisent des variables CSS pour faciliter la personnalisatio
 - [ ] Personnalisation des couleurs par template
 - [ ] Multi-langues dans les templates
 
+## Stripe Payments & Subscriptions
+
+Le projet intègre un système complet d'**abonnement Stripe** pour monétiser le SaaS avec 3 plans : Starter, Pro et Business.
+
+### Overview
+
+- **3 plans** : Starter ($9/mois), Pro ($29/mois), Business ($99/mois)
+- **Stripe Checkout** : Paiement sécurisé par carte bancaire
+- **Customer Portal** : Gestion d'abonnement self-service
+- **Webhooks** : Synchronisation automatique des abonnements
+- **Permissions** : Accès aux fonctionnalités selon le plan
+
+### Architecture
+
+```
+lib/payments/
+└── stripe.ts              # Stripe SDK integration
+
+lib/auth/
+└── permissions.ts         # Plan-based permissions
+
+lib/users-store.ts         # User with subscriptionPlan + stripeCustomerId
+
+app/api/payments/
+├── create-checkout/       # POST - Create Checkout Session
+├── portal/                # GET - Customer Portal Session
+└── webhook/               # POST - Handle Stripe events
+
+app/dashboard/
+└── billing/               # Subscription management page
+```
+
+### Configuration Stripe
+
+#### 1. Créer un compte Stripe
+
+1. Inscrivez-vous sur [stripe.com](https://stripe.com)
+2. Activez le mode test pour développement
+3. Récupérez vos clés API dans [Dashboard > Developers > API keys](https://dashboard.stripe.com/apikeys)
+
+#### 2. Créer les produits et prix
+
+Dans le [Dashboard Stripe > Products](https://dashboard.stripe.com/products) :
+
+**Starter** :
+- Nom : "Starter Plan"
+- Prix : $9/mois (récurrent)
+- Copier le Price ID : `price_xxxxx`
+
+**Pro** :
+- Nom : "Pro Plan"
+- Prix : $29/mois (récurrent)
+- Copier le Price ID : `price_xxxxx`
+
+**Business** :
+- Nom : "Business Plan"
+- Prix : $99/mois (récurrent)
+- Copier le Price ID : `price_xxxxx`
+
+#### 3. Configurer les variables d'environnement
+
+Ajouter dans `.env` :
+
+```env
+# Stripe API Keys
+STRIPE_SECRET_KEY=sk_test_xxxxx
+STRIPE_WEBHOOK_SECRET=whsec_xxxxx
+
+# Stripe Price IDs
+STRIPE_PRICE_STARTER=price_xxxxx
+STRIPE_PRICE_PRO=price_xxxxx
+STRIPE_PRICE_BUSINESS=price_xxxxx
+```
+
+#### 4. Configurer les webhooks
+
+1. Dans [Dashboard > Developers > Webhooks](https://dashboard.stripe.com/webhooks)
+2. Créer un endpoint : `https://yourdomain.com/api/payments/webhook`
+3. Sélectionner les événements :
+   - `checkout.session.completed`
+   - `customer.subscription.created`
+   - `customer.subscription.updated`
+   - `customer.subscription.deleted`
+4. Copier le `Signing secret` dans `STRIPE_WEBHOOK_SECRET`
+
+**En développement local** :
+
+Utilisez [Stripe CLI](https://stripe.com/docs/stripe-cli) :
+
+```bash
+# Installer Stripe CLI
+brew install stripe/stripe-cli/stripe
+
+# Login
+stripe login
+
+# Forward webhooks to localhost
+stripe listen --forward-to localhost:3000/api/payments/webhook
+
+# Copier le webhook secret dans .env
+```
+
+### Workflow d'abonnement
+
+#### 1. Création d'abonnement
+
+```typescript
+// L'utilisateur clique sur "S'abonner" à un plan
+
+// Frontend appelle l'API
+const response = await fetch('/api/payments/create-checkout', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ plan: 'pro' }),
+});
+
+const { url } = await response.json();
+
+// Redirection vers Stripe Checkout
+window.location.href = url;
+```
+
+#### 2. Paiement et activation
+
+1. L'utilisateur entre ses informations de paiement sur Stripe
+2. Stripe traite le paiement
+3. Stripe redirige vers `/dashboard/billing?success=true`
+4. Stripe envoie un webhook `checkout.session.completed`
+5. Le webhook enregistre le `stripeCustomerId` dans la BDD
+6. Le webhook active l'abonnement : `subscriptionPlan = 'pro'`
+
+#### 3. Gestion d'abonnement
+
+```typescript
+// L'utilisateur clique sur "Gérer mon abonnement"
+
+const response = await fetch('/api/payments/portal');
+const { url } = await response.json();
+
+// Redirection vers Stripe Customer Portal
+window.location.href = url;
+```
+
+Le Customer Portal permet :
+- Changer de carte bancaire
+- Voir l'historique de paiements
+- Télécharger les factures
+- Annuler l'abonnement
+- Changer de plan
+
+#### 4. Webhooks automatiques
+
+Les webhooks synchronisent automatiquement la BDD :
+
+```typescript
+// customer.subscription.updated
+→ Met à jour subscriptionPlan de l'utilisateur
+
+// customer.subscription.deleted
+→ Supprime subscriptionPlan (utilisateur repasse en free)
+```
+
+### Système de permissions
+
+Les permissions sont contrôlées dans `/lib/auth/permissions.ts` :
+
+| Plan | AI Text | SEO Boost | Auto Images | AutoDeploy | Premium Templates | Max Sites |
+|------|---------|-----------|-------------|------------|-------------------|-----------|
+| **Free** | ✅ | ❌ | ❌ | ❌ | ❌ | 3 |
+| **Starter** | ✅ | ❌ | ❌ | ❌ | ❌ | 10 |
+| **Pro** | ✅ | ✅ | ❌ | ❌ | ❌ | 50 |
+| **Business** | ✅ | ✅ | ✅ | ✅ | ✅ | ∞ |
+
+**Fonctions disponibles** :
+
+```typescript
+import {
+  canUseSEOBoost,
+  canUseAutoImages,
+  canUseDeploy,
+  canUsePremiumTemplates,
+  getMaxSites,
+  getFeatures,
+} from '@/lib/auth/permissions';
+
+// Vérifier si l'utilisateur peut utiliser SEO Boost
+if (canUseSEOBoost(user.subscriptionPlan)) {
+  // Activer SEO Boost
+}
+
+// Obtenir le nombre max de sites
+const maxSites = getMaxSites(user.subscriptionPlan); // 10, 50, ou -1 (illimité)
+
+// Obtenir toutes les features du plan
+const features = getFeatures(user.subscriptionPlan);
+// ['AI Text Generation', 'SEO Boost', 'Up to 50 Sites', ...]
+```
+
+### API Routes
+
+#### POST /api/payments/create-checkout
+
+Créer une session Stripe Checkout.
+
+**Request** :
+```json
+{
+  "plan": "pro"
+}
+```
+
+**Response** :
+```json
+{
+  "success": true,
+  "sessionId": "cs_test_xxxxx",
+  "url": "https://checkout.stripe.com/pay/cs_test_xxxxx"
+}
+```
+
+**Exemple curl** :
+```bash
+curl -X POST http://localhost:3000/api/payments/create-checkout \
+  -H "Content-Type: application/json" \
+  -b cookies.txt \
+  -d '{"plan":"pro"}'
+```
+
+#### GET /api/payments/portal
+
+Créer une session Customer Portal.
+
+**Response** :
+```json
+{
+  "success": true,
+  "url": "https://billing.stripe.com/session/xxxxx"
+}
+```
+
+**Exemple curl** :
+```bash
+curl http://localhost:3000/api/payments/portal -b cookies.txt
+```
+
+#### POST /api/payments/webhook
+
+Recevoir les événements Stripe (webhook).
+
+**Headers** :
+```
+stripe-signature: t=xxxxx,v1=xxxxx
+```
+
+**Événements gérés** :
+- `checkout.session.completed` : Sauvegarde du customer ID
+- `customer.subscription.created` : Activation d'abonnement
+- `customer.subscription.updated` : Mise à jour du plan
+- `customer.subscription.deleted` : Annulation d'abonnement
+
+### Tests
+
+Pour tester le système de paiements :
+
+```bash
+# Tests unitaires
+npm run test:unit -- tests/unit/lib/payments
+
+# Tests users-store avec subscription
+npm run test:unit -- tests/unit/lib/users-store.test.ts
+```
+
+#### Tester avec Stripe Test Mode
+
+Cartes de test Stripe :
+
+| Carte | Résultat |
+|-------|----------|
+| `4242 4242 4242 4242` | Paiement réussi |
+| `4000 0000 0000 9995` | Paiement refusé (insufficient funds) |
+| `4000 0025 0000 3155` | 3D Secure requis |
+
+Date d'expiration : n'importe quelle date future
+CVC : n'importe quel 3 chiffres
+Code postal : n'importe quel code
+
+### Sécurité
+
+**Protection des webhooks** :
+- Vérification de signature HMAC avec `STRIPE_WEBHOOK_SECRET`
+- Rejet automatique des webhooks non signés
+
+**Protection des routes API** :
+- Authentification requise (session cookie)
+- Vérification du `userId` dans la session
+
+**Données sensibles** :
+- ✅ `STRIPE_SECRET_KEY` jamais exposé côté client
+- ✅ `stripeCustomerId` lié uniquement au `userId`
+- ✅ Pas de stockage de données de carte bancaire (géré par Stripe)
+
+### Pages
+
+#### /dashboard/billing
+
+Page de gestion d'abonnement :
+- Affichage du plan actuel
+- Liste des features incluses
+- Bouton "Manage Subscription" → Stripe Customer Portal
+- Grille des plans disponibles avec boutons "Subscribe" / "Switch Plan"
+- Messages de succès/erreur après paiement
+
+#### /pricing (mise à jour)
+
+Page publique avec les 3 plans :
+- Starter : $9/mois
+- Pro : $29/mois (badge "Popular")
+- Business : $99/mois
+
+Boutons CTA redirigent vers `/auth/signup` puis `/dashboard/billing`
+
+### Migration utilisateurs existants
+
+Si vous avez déjà des utilisateurs, ils n'ont pas de champs `subscriptionPlan` ni `stripeCustomerId` :
+
+```typescript
+// Les utilisateurs sans plan sont en "free tier"
+const plan = user.subscriptionPlan || null;
+
+// Permissions par défaut
+getMaxSites(null); // 3 sites
+canUseSEOBoost(null); // false
+```
+
+Aucune migration nécessaire - les nouveaux champs sont optionnels.
+
+### Troubleshooting
+
+**Webhook non reçu** :
+- Vérifier que l'URL du webhook est correcte
+- Vérifier que les événements sont sélectionnés
+- Utiliser Stripe CLI en dev : `stripe listen --forward-to localhost:3000/api/payments/webhook`
+
+**Signature webhook invalide** :
+- Vérifier `STRIPE_WEBHOOK_SECRET` dans `.env`
+- En dev local, utiliser le secret fourni par `stripe listen`
+
+**Paiement réussi mais plan non activé** :
+- Vérifier les logs du webhook
+- Vérifier que le `userId` est bien passé dans `client_reference_id`
+- Vérifier que le Price ID correspond au bon plan
+
+**Customer Portal inaccessible** :
+- Vérifier que l'utilisateur a un `stripeCustomerId`
+- Vérifier que le customer existe dans Stripe
+
+### Références
+
+- [Stripe Docs - Checkout](https://stripe.com/docs/payments/checkout)
+- [Stripe Docs - Subscriptions](https://stripe.com/docs/billing/subscriptions/overview)
+- [Stripe Docs - Customer Portal](https://stripe.com/docs/billing/subscriptions/integrating-customer-portal)
+- [Stripe Docs - Webhooks](https://stripe.com/docs/webhooks)
+
 ## Utilisation
 
 ### Interface web

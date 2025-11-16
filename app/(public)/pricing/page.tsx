@@ -30,65 +30,52 @@ export default function PricingPage() {
             {/* Starter Plan */}
             <PricingCard
               name="Starter"
-              price="Gratuit"
-              period=""
+              price="$9"
+              period="/mois"
               description="Pour découvrir le service"
               features={[
-                "5 sites maximum",
-                "AI Content Generation",
-                "Génération d'images (limitée)",
-                "SEO Boost basique",
-                "Déploiement manuel",
-                "Support communautaire",
-                "Dashboard de base",
+                "AI Text Generation",
+                "Up to 10 Sites",
+                "Basic Templates",
+                "Email Support",
               ]}
-              cta="Commencer gratuitement"
-              ctaLink="/dashboard/register"
+              cta="S'abonner"
+              ctaLink="/auth/signup"
             />
 
             {/* Pro Plan */}
             <PricingCard
               name="Pro"
-              price="29€"
+              price="$29"
               period="/mois"
               description="Pour professionnels et PME"
               features={[
-                "20 sites maximum",
-                "AI Content illimité",
-                "Auto-Images AI (DALL-E 3)",
-                "SEO Boost complet",
-                "AutoDeploy (1-click)",
-                "Support prioritaire",
-                "Dashboard avancé",
-                "Multi-utilisateurs (3 comptes)",
-                "Statistiques détaillées",
+                "Everything in Starter",
+                "SEO Boost",
+                "Up to 50 Sites",
+                "Priority Support",
               ]}
               highlighted={true}
-              cta="Choisir Pro"
-              ctaLink="/dashboard/register"
+              cta="S'abonner"
+              ctaLink="/auth/signup"
             />
 
             {/* Business Plan */}
             <PricingCard
               name="Business"
-              price="99€"
+              price="$99"
               period="/mois"
               description="Pour agences et entreprises"
               features={[
-                "Sites illimités",
-                "AI Content illimité",
-                "Auto-Images AI premium",
-                "SEO Boost + Analytics",
-                "AutoDeploy avancé",
-                "Support dédié 24/7",
-                "Dashboard professionnel",
-                "Multi-utilisateurs illimité",
-                "White-label possible",
-                "API Access",
-                "Personnalisation avancée",
+                "Everything in Pro",
+                "Auto Images AI",
+                "AutoDeploy",
+                "Premium Templates Unlimited",
+                "Unlimited Sites",
+                "Dedicated Support",
               ]}
-              cta="Contacter les ventes"
-              ctaLink="mailto:sales@mini-site-generator.com"
+              cta="S'abonner"
+              ctaLink="/auth/signup"
             />
 
           </div>

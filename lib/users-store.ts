@@ -12,11 +12,15 @@ import bcrypt from 'bcryptjs';
 const DATA_DIR = path.join(process.cwd(), '.data');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 
+export type SubscriptionPlan = 'starter' | 'pro' | 'business';
+
 export type UserEntry = {
   id: string;
   email: string;
   passwordHash: string;
   createdAt: string;
+  subscriptionPlan?: SubscriptionPlan;
+  stripeCustomerId?: string;
 };
 
 /**
@@ -176,4 +180,60 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
 export async function getUserCount(): Promise<number> {
   const users = await loadUsers();
   return users.length;
+}
+
+/**
+ * Update user subscription plan
+ */
+export async function updateUserSubscription(
+  userId: string,
+  plan: SubscriptionPlan | null
+): Promise<UserEntry | null> {
+  const users = await loadUsers();
+  const index = users.findIndex((u) => u.id === userId);
+
+  if (index === -1) {
+    return null;
+  }
+
+  users[index] = {
+    ...users[index],
+    subscriptionPlan: plan || undefined,
+  };
+
+  await saveUsers(users);
+  return users[index];
+}
+
+/**
+ * Update user Stripe customer ID
+ */
+export async function updateUserStripeCustomerId(
+  userId: string,
+  customerId: string
+): Promise<UserEntry | null> {
+  const users = await loadUsers();
+  const index = users.findIndex((u) => u.id === userId);
+
+  if (index === -1) {
+    return null;
+  }
+
+  users[index] = {
+    ...users[index],
+    stripeCustomerId: customerId,
+  };
+
+  await saveUsers(users);
+  return users[index];
+}
+
+/**
+ * Get user by Stripe customer ID
+ */
+export async function getUserByStripeCustomerId(
+  customerId: string
+): Promise<UserEntry | null> {
+  const users = await loadUsers();
+  return users.find((u) => u.stripeCustomerId === customerId) || null;
 }
