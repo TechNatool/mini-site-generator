@@ -5,7 +5,7 @@ test.describe('Homepage', () => {
     await page.goto('/');
 
     // Check title
-    await expect(page).toHaveTitle(/Mini Site Generator/i);
+    await expect(page).toHaveTitle(/ForgeWeb/i);
 
     // Check hero section
     const heading = page.getByRole('heading', { level: 1 });

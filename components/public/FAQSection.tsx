@@ -57,7 +57,7 @@ export default function FAQSection() {
             Questions fréquentes
           </h2>
           <p className="text-xl text-gray-600">
-            Tout ce que vous devez savoir sur le Mini Site Generator
+            Tout ce que vous devez savoir sur ForgeWeb
           </p>
         </div>
 
@@ -100,7 +100,7 @@ export default function FAQSection() {
         <div className="mt-12 text-center">
           <p className="text-gray-600 mb-4">Vous avez d'autres questions ?</p>
           <a
-            href="mailto:support@mini-site-generator.com"
+            href="mailto:support@forgeweb.io"
             className="inline-flex items-center text-blue-600 font-semibold hover:text-blue-700"
           >
             Contactez-nous

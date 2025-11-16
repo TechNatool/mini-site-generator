@@ -17,11 +17,11 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">
-              Un générateur de sites web intelligent
+              Votre site professionnel, forgé par l'intelligence artificielle
             </h2>
             <p className="text-xl text-gray-600 leading-relaxed">
-              Mini Site Generator utilise l'intelligence artificielle Claude pour créer automatiquement
-              des sites web professionnels pour artisans et PME. En quelques clics, obtenez un site complet
+              ForgeWeb utilise l'intelligence artificielle Claude pour créer automatiquement
+              des sites web professionnels adaptés aux artisans et PME. En quelques minutes, obtenez un site complet
               de 6 pages avec contenu optimisé, images générées, SEO parfait et déploiement automatique.
             </p>
           </div>
@@ -213,7 +213,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Pourquoi choisir Mini Site Generator ?
+              Pourquoi choisir ForgeWeb ?
             </h2>
           </div>
 
@@ -295,7 +295,7 @@ export default function HomePage() {
             Prêt à créer votre site web professionnel ?
           </h2>
           <p className="text-xl text-primary-100 mb-10">
-            Rejoignez les centaines d'artisans et PME qui utilisent déjà Mini Site Generator
+            Rejoignez les centaines d'artisans et PME qui utilisent déjà ForgeWeb
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/auth/signup">

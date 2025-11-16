@@ -5,8 +5,8 @@
  */
 
 export const metadata = {
-  title: 'Dashboard - Mini Site Generator',
-  description: 'Manage your generated sites',
+  title: 'Dashboard - ForgeWeb',
+  description: 'Gérez vos sites générés',
 };
 
 export default function DashboardLayout({

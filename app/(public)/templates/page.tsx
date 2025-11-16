@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Templates Premium | Mini Site Generator',
+  title: 'Templates Premium | ForgeWeb',
   description: 'Découvrez nos templates professionnels optimisés pour votre activité. Design moderne, responsive et personnalisable.',
 };
 

@@ -1,7 +1,7 @@
 {
-  "name": "mini-site-generator",
+  "name": "forgeweb",
   "version": "1.0.0",
-  "description": "Générateur automatisé de mini-sites pour artisans",
+  "description": "SaaS IA pour créer des sites professionnels automatiquement - Votre site professionnel, forgé en quelques minutes.",
   "private": true,
   "scripts": {
     "dev": "next dev",

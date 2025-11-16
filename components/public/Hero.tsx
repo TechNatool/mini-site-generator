@@ -24,8 +24,8 @@ export default function Hero() {
 
           {/* Description */}
           <p className="max-w-3xl mx-auto text-xl sm:text-2xl text-blue-100 mb-10">
-            Générateur de sites web intelligent pour artisans et PME.
-            Contenu IA, SEO optimisé, déploiement automatique.
+            Votre site professionnel, forgé en quelques minutes.
+            Solution SaaS complète pour artisans et PME avec l'IA.
           </p>
 
           {/* CTAs */}

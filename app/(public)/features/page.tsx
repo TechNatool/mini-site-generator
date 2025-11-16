@@ -3,8 +3,8 @@ import Footer from '@/components/public/Footer';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Fonctionnalités - Mini Site Generator',
-  description: 'Découvrez toutes les fonctionnalités du Mini Site Generator : AI Content, Auto-Images, SEO Boost, AutoDeploy, Dashboard et Multi-utilisateurs.',
+  title: 'Fonctionnalités - ForgeWeb',
+  description: 'Découvrez toutes les fonctionnalités de ForgeWeb : AI Content, Auto-Images, SEO Boost, AutoDeploy, Dashboard et Multi-utilisateurs.',
 };
 
 export default function FeaturesPage() {

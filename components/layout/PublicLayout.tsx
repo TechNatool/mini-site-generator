@@ -54,13 +54,13 @@ export const PublicLayout: React.FC<PublicLayoutProps> = ({ children }) => {
             <Link
               href="/"
               className="flex items-center gap-2 group"
-              aria-label="Mini Site Generator - Home"
+              aria-label="ForgeWeb - Home"
             >
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center text-white font-bold text-xl shadow-md group-hover:shadow-glow transition-all">
-                M
+                F
               </div>
               <span className="text-xl font-bold font-heading text-neutral-900 hidden sm:block">
-                Mini Site Generator
+                ForgeWeb
               </span>
             </Link>
 
@@ -175,14 +175,14 @@ export const PublicLayout: React.FC<PublicLayoutProps> = ({ children }) => {
             <div className="col-span-1 md:col-span-2">
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center text-white font-bold text-xl shadow-md">
-                  M
+                  F
                 </div>
                 <span className="text-xl font-bold font-heading">
-                  Mini Site Generator
+                  ForgeWeb
                 </span>
               </div>
               <p className="text-neutral-400 max-w-md">
-                Créez des mini-sites professionnels en quelques clics avec l'intelligence artificielle.
+                Votre site professionnel, forgé en quelques minutes. Solution SaaS IA pour artisans et PME.
               </p>
             </div>
 
@@ -227,7 +227,7 @@ export const PublicLayout: React.FC<PublicLayoutProps> = ({ children }) => {
 
           {/* Bottom Bar */}
           <div className="mt-12 pt-8 border-t border-neutral-800 text-center text-neutral-400 text-sm">
-            <p>© {new Date().getFullYear()} Mini Site Generator. Tous droits réservés.</p>
+            <p>© {new Date().getFullYear()} ForgeWeb. Tous droits réservés.</p>
           </div>
         </div>
       </footer>

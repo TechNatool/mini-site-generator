@@ -2,38 +2,38 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Mini Site Generator - Créez des sites web professionnels avec l\'IA',
-  description: 'Générateur de sites web intelligent pour artisans et PME. Contenu IA, images générées, SEO optimisé, déploiement automatique. Créez votre site en 5 minutes.',
-  keywords: ['générateur de site web', 'IA', 'Claude AI', 'site web artisan', 'SEO', 'déploiement automatique', 'site web PME'],
-  authors: [{ name: 'Mini Site Generator' }],
-  creator: 'Mini Site Generator',
-  publisher: 'Mini Site Generator',
+  title: 'ForgeWeb - Votre site professionnel, forgé en quelques minutes',
+  description: 'Créez des sites web professionnels avec l\'IA en quelques minutes. Solution SaaS complète pour artisans et PME : contenu IA, images générées, SEO optimisé, déploiement automatique.',
+  keywords: ['générateur de site web', 'IA', 'Claude AI', 'site web artisan', 'SEO', 'déploiement automatique', 'site web PME', 'ForgeWeb'],
+  authors: [{ name: 'ForgeWeb' }],
+  creator: 'ForgeWeb',
+  publisher: 'ForgeWeb',
   robots: 'index, follow',
   openGraph: {
     type: 'website',
     locale: 'fr_FR',
-    url: 'https://mini-site-generator.com',
-    siteName: 'Mini Site Generator',
-    title: 'Mini Site Generator - Créez des sites web professionnels avec l\'IA',
-    description: 'Générateur de sites web intelligent pour artisans et PME. Contenu IA, SEO optimisé, déploiement automatique.',
+    url: 'https://forgeweb.io',
+    siteName: 'ForgeWeb',
+    title: 'ForgeWeb - Votre site professionnel, forgé en quelques minutes',
+    description: 'Créez des sites web professionnels avec l\'IA en quelques minutes. Solution SaaS complète pour artisans et PME.',
     images: [
       {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'Mini Site Generator',
+        alt: 'ForgeWeb',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Mini Site Generator - Créez des sites web professionnels avec l\'IA',
-    description: 'Générateur de sites web intelligent pour artisans et PME. Contenu IA, SEO optimisé, déploiement automatique.',
+    title: 'ForgeWeb - Votre site professionnel, forgé en quelques minutes',
+    description: 'Créez des sites web professionnels avec l\'IA en quelques minutes. Solution SaaS complète pour artisans et PME.',
     images: ['/twitter-image.png'],
-    creator: '@minisitegen',
+    creator: '@forgeweb',
   },
   alternates: {
-    canonical: 'https://mini-site-generator.com',
+    canonical: 'https://forgeweb.io',
   },
   other: {
     'google-site-verification': 'your-verification-code-here',
@@ -54,10 +54,10 @@ export default function PublicLayout({
             {/* Logo */}
             <div className="flex items-center">
               <Link href="/" className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-xl">M</span>
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-xl">F</span>
                 </div>
-                <span className="text-xl font-bold text-gray-900">Mini Site Generator</span>
+                <span className="text-xl font-bold text-gray-900">ForgeWeb</span>
               </Link>
             </div>
 

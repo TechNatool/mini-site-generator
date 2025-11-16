@@ -1,6 +1,10 @@
-# Générateur de Mini-Sites pour Artisans
+# ForgeWeb
 
-Générateur automatisé de sites web professionnels pour artisans, propulsé par l'IA Claude d'Anthropic.
+**Votre site professionnel, forgé en quelques minutes.**
+
+ForgeWeb est une solution SaaS complète pour créer des sites web professionnels automatiquement grâce à l'intelligence artificielle. Conçu pour les artisans et PME, ForgeWeb utilise Claude AI d'Anthropic pour générer des sites complets, optimisés SEO, avec déploiement automatique.
+
+🌐 **Site web** : [https://forgeweb.io](https://forgeweb.io)
 
 ## Table des matières
 
@@ -70,7 +74,7 @@ Ce projet permet de générer automatiquement des sites web complets pour artisa
 
 ```bash
 git clone <url-du-repo>
-cd mini-site-generator
+cd forgeweb
 ```
 
 2. Installer les dépendances :

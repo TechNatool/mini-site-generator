@@ -7,9 +7,9 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="col-span-1">
-            <h3 className="text-white text-xl font-bold mb-4">Mini Site Generator</h3>
+            <h3 className="text-white text-xl font-bold mb-4">ForgeWeb</h3>
             <p className="text-sm text-gray-400">
-              Générateur de sites web propulsé par l'IA pour artisans et PME.
+              Votre site professionnel, forgé en quelques minutes. Solution SaaS IA pour artisans et PME.
             </p>
           </div>
 
@@ -91,7 +91,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm text-gray-400">
-          <p>&copy; {new Date().getFullYear()} Mini Site Generator. Tous droits réservés.</p>
+          <p>&copy; {new Date().getFullYear()} ForgeWeb. Tous droits réservés.</p>
           <p className="mt-2">Propulsé par Claude AI (Anthropic)</p>
         </div>
       </div>

@@ -3,7 +3,7 @@ import PricingCard from '@/components/public/PricingCard';
 import PublicLayout from '@/components/layout/PublicLayout';
 
 export const metadata: Metadata = {
-  title: 'Tarifs - Mini Site Generator',
+  title: 'Tarifs - ForgeWeb',
   description: 'Découvrez nos tarifs simples et transparents. Plans Starter, Pro et Business pour tous les besoins.',
 };
 

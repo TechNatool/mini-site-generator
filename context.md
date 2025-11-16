@@ -1,10 +1,12 @@
-# Context - Générateur de Mini-Sites pour Artisans
+# Context - ForgeWeb
 
 ## 📋 Vue d'ensemble
 
 ### Description du produit
 
-Le **Générateur de Mini-Sites pour Artisans** est une application web automatisée permettant de créer des sites web professionnels pour artisans en quelques clics. L'utilisateur remplit un formulaire simple avec ses informations (nom, activité, ville, services, couleurs préférées), et le système génère automatiquement :
+**ForgeWeb** - *Votre site professionnel, forgé en quelques minutes.*
+
+ForgeWeb est une solution SaaS complète permettant de créer des sites web professionnels pour artisans et PME automatiquement grâce à l'IA. L'utilisateur remplit un formulaire simple avec ses informations (nom, activité, ville, services, couleurs préférées), et le système génère automatiquement :
 
 - Un site web complet avec 6 pages (Home, À Propos, Services, Tarifs, Contact, Mentions légales)
 - Du contenu SEO optimisé et personnalisé
@@ -46,7 +48,7 @@ Le **Générateur de Mini-Sites pour Artisans** est une application web automati
 ## 📁 Structure du projet
 
 ```
-mini-site-generator/
+forgeweb/
 ├── app/
 │   ├── api/
 │   │   ├── generate-site/
