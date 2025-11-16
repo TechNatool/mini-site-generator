@@ -32,14 +32,18 @@ test.describe('Génération de la matrice de 27 sites', () => {
       console.log(`   Ville: ${config.city}`);
       console.log(`   Style: ${config.style}`);
 
+      // Debug: afficher le payload complet
+      const requestPayload = {
+        formData,
+        options: {
+          autoDeployVercel: false,
+          generateImages: false
+        }
+      };
+      console.log(`   📦 Payload:`, JSON.stringify(requestPayload, null, 2));
+
       const response = await request.post(`${BASE_URL}/api/generate-site`, {
-        data: {
-          formData,
-          options: {
-            autoDeployVercel: false,
-            generateImages: false
-          }
-        },
+        data: requestPayload,
         timeout: 120000, // 2 minutes
       });
 
