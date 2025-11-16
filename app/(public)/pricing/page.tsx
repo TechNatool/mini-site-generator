@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import PricingCard from '@/components/public/PricingCard';
-import Footer from '@/components/public/Footer';
+import PublicLayout from '@/components/layout/PublicLayout';
 
 export const metadata: Metadata = {
   title: 'Tarifs - Mini Site Generator',
@@ -9,9 +9,9 @@ export const metadata: Metadata = {
 
 export default function PricingPage() {
   return (
-    <>
+    <PublicLayout>
       {/* Hero */}
-      <section className="bg-gradient-to-br from-blue-600 to-indigo-700 text-white py-20">
+      <section className="bg-gradient-to-br from-primary to-primary-dark text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl sm:text-5xl font-bold mb-6">
             Tarifs simples et transparents
@@ -270,17 +270,17 @@ export default function PricingPage() {
       </section>
 
       {/* Final CTA */}
-      <section className="py-20 bg-gradient-to-br from-blue-600 to-indigo-700 text-white">
+      <section className="py-20 bg-gradient-to-br from-primary to-primary-dark text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl sm:text-4xl font-bold mb-6">
             Prêt à démarrer ?
           </h2>
-          <p className="text-xl text-blue-100 mb-10">
+          <p className="text-xl text-primary-100 mb-10">
             Commencez gratuitement dès aujourd'hui. Aucune carte bancaire requise.
           </p>
           <a
-            href="/dashboard/register"
-            className="inline-flex items-center px-8 py-4 bg-white text-blue-700 font-semibold rounded-lg hover:bg-blue-50 transition-all shadow-lg"
+            href="/auth/signup"
+            className="inline-flex items-center px-8 py-4 bg-white text-primary-700 font-semibold rounded-lg hover:bg-primary-50 transition-all shadow-lg"
           >
             Créer mon compte gratuit
             <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -289,8 +289,6 @@ export default function PricingPage() {
           </a>
         </div>
       </section>
-
-      <Footer />
-    </>
+    </PublicLayout>
   );
 }

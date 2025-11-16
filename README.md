@@ -2416,6 +2416,261 @@ Aucune migration nécessaire - les nouveaux champs sont optionnels.
 - [Stripe Docs - Customer Portal](https://stripe.com/docs/billing/subscriptions/integrating-customer-portal)
 - [Stripe Docs - Webhooks](https://stripe.com/docs/webhooks)
 
+## UI/UX Rebranding
+
+Le projet a bénéficié d'une refonte UI/UX complète pour harmoniser toute l'application avec une identité visuelle professionnelle moderne.
+
+### Palette de Couleurs
+
+La nouvelle charte graphique utilise les couleurs suivantes (définie dans `tailwind.config.ts`) :
+
+#### Couleurs Principales
+
+- **Primary** : `#2563eb` (blue-600) - Couleur principale de la marque
+- **Primary Dark** : `#1e40af` (blue-800) - Variante sombre
+- **Accent** : `#0ea5e9` (cyan-500) - Couleur d'accentuation
+- **Success** : `#10b981` (emerald-500) - Succès et confirmation
+- **Warning** : `#f59e0b` (amber-500) - Avertissements
+- **Danger** : `#ef4444` (red-500) - Erreurs et actions destructives
+- **Neutral Light** : `#f8fafc` (slate-50) - Arrière-plans clairs
+- **Neutral Dark** : `#0f172a` (slate-900) - Textes sombres
+
+Chaque couleur dispose d'une gamme complète de nuances (50 à 950) pour plus de flexibilité.
+
+### Composants UI Transversaux
+
+#### Button (`/components/ui/Button.tsx`)
+
+Composant de bouton réutilisable avec plusieurs variants :
+
+```tsx
+import { Button } from '@/components/ui/Button';
+
+// Variants disponibles
+<Button variant="primary">Action principale</Button>
+<Button variant="secondary">Action secondaire</Button>
+<Button variant="danger">Action destructive</Button>
+<Button variant="ghost">Action discrète</Button>
+<Button variant="success">Confirmer</Button>
+
+// Tailles
+<Button size="sm">Petit</Button>
+<Button size="md">Moyen (défaut)</Button>
+<Button size="lg">Grand</Button>
+
+// Options
+<Button fullWidth>Largeur complète</Button>
+<Button loading>En chargement...</Button>
+<Button icon={<Icon />}>Avec icône</Button>
+```
+
+**Caractéristiques** :
+- Rounded-xl pour des coins arrondis modernes
+- Transitions fluides (hover, active, focus)
+- Shadow et effets de glow sur hover
+- Scale effects (hover: 1.02, active: 0.98)
+- Focus ring pour l'accessibilité
+- Support du loading state avec spinner
+- Gradients pour le variant primary
+
+#### Card (`/components/ui/Card.tsx`)
+
+Système de cartes modulaire pour conteneurs :
+
+```tsx
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/Card';
+
+<Card variant="elevated" padding="lg" hoverable>
+  <CardHeader>
+    <CardTitle>Titre de la carte</CardTitle>
+    <CardDescription>Description optionnelle</CardDescription>
+  </CardHeader>
+  <CardContent>
+    Contenu principal
+  </CardContent>
+  <CardFooter>
+    Actions ou informations secondaires
+  </CardFooter>
+</Card>
+```
+
+**Variants** :
+- `default` : Carte standard avec bordure et ombre légère
+- `bordered` : Bordure colorée (primary-200)
+- `elevated` : Ombre prononcée pour mise en avant
+- `glass` : Effet glassmorphism avec backdrop-blur
+
+**Props** :
+- `padding` : 'none' | 'sm' | 'md' | 'lg'
+- `hoverable` : Ajoute effets hover (scale, shadow-glow)
+- `clickable` : Cursor pointer
+
+#### PageTitle (`/components/ui/PageTitle.tsx`)
+
+Titres standardisés pour pages dashboard/admin :
+
+```tsx
+import { PageTitle } from '@/components/ui/PageTitle';
+
+<PageTitle
+  title="Ma Page"
+  subtitle="Description de la page"
+  icon={<Icon />}
+  actions={<Button>Action</Button>}
+/>
+```
+
+**Caractéristiques** :
+- Titre avec typography cohérente (font-heading, 3xl/4xl)
+- Icône optionnelle dans un conteneur gradient arrondi
+- Sous-titre avec couleur neutre
+- Zone d'actions alignée à droite
+- Divider gradient en bas pour séparation visuelle
+
+### Layouts Globaux
+
+#### PublicLayout (`/components/layout/PublicLayout.tsx`)
+
+Layout pour pages publiques (landing, pricing, features, etc.)
+
+**Caractéristiques** :
+- Navbar sticky avec effet blur au scroll
+- Transparence progressive (blur-md quand scrollé)
+- Logo avec effet glow au hover
+- Menu responsive avec animations
+- Footer moderne avec sections organisées
+- Support navigation mobile avec menu déroulant animé
+
+**Usage** :
+```tsx
+import PublicLayout from '@/components/layout/PublicLayout';
+
+export default function Page() {
+  return (
+    <PublicLayout>
+      {/* Contenu de la page */}
+    </PublicLayout>
+  );
+}
+```
+
+#### DashboardLayout (`/components/layout/DashboardLayout.tsx`)
+
+Layout pour pages du dashboard utilisateur
+
+**Caractéristiques** :
+- Sidebar fixe avec navigation
+- Header sticky avec actions rapides
+- Responsive avec menu mobile
+- Zone de contenu centrée et maximisée
+- Bouton "Nouveau Site" en évidence
+- Bouton de déconnexion
+
+#### AdminLayout (`/components/layout/AdminLayout.tsx`)
+
+Layout pour pages d'administration
+
+**Caractéristiques** :
+- Sidebar sombre (gradient neutral-900 to neutral-800)
+- Icônes personnalisées par section
+- Badge "Administrateur" dans le header
+- Couleur d'accentuation warning (amber) pour différenciation
+- Navigation vers dashboard et déconnexion
+
+### Animations
+
+Animations subtiles définies dans `tailwind.config.ts` :
+
+- `animate-fade-in` : Apparition en fondu
+- `animate-slide-up` : Glissement vers le haut
+- `animate-slide-down` : Glissement vers le bas
+
+**Usage** :
+```tsx
+<div className="animate-fade-in">Apparaît progressivement</div>
+<div className="animate-slide-up">Monte avec fondu</div>
+```
+
+### Ombres Personnalisées
+
+- `shadow-soft` : Ombre douce pour élévation subtile
+- `shadow-glow` : Halo lumineux primary (hover effects)
+- `shadow-glow-lg` : Halo lumineux plus prononcé
+
+### Normes d'UI Globales
+
+#### Typography
+
+- **Titres** : Font Poppins (font-heading)
+- **Corps** : Font Inter (font-sans)
+- **Hiérarchie** :
+  - H1: text-4xl (pages)
+  - H2: text-3xl (sections)
+  - H3: text-xl (sous-sections)
+  - Body: text-base
+
+#### Espacements
+
+- **Padding conteneurs** : px-4 sm:px-6 lg:px-8
+- **Sections** : py-20 (espacement vertical)
+- **Cartes** : p-6 (padding moyen)
+- **Gaps grilles** : gap-8 (espacement entre éléments)
+
+#### Bordures
+
+- **Radius** : rounded-xl (standard), rounded-lg (petits éléments)
+- **Couleurs** : border-neutral-200 (clair), border-neutral-700 (sombre)
+
+### Accessibilité
+
+Toutes les interfaces respectent les normes WCAG 2.1 niveau AA :
+
+- **ARIA labels** sur tous les éléments interactifs
+- **Focus states** visibles (ring-2 ring-offset-2)
+- **Contraste minimum** AA (4.5:1 pour texte normal)
+- **Semantic HTML** (`<main>`, `<nav>`, `<section>`, `<article>`)
+- **Navigation clavier** complète
+- **Screen reader friendly**
+
+### Bonnes Pratiques
+
+1. **Toujours utiliser les composants UI** plutôt que recréer des styles inline
+2. **Préférer les classes Tailwind** aux couleurs hard-codées
+3. **Utiliser les layouts** pour cohérence structurelle
+4. **Respecter la hiérarchie typographique**
+5. **Tester l'accessibilité** avec les outils de dev
+6. **Vérifier le responsive** sur mobile/tablet/desktop
+7. **Ajouter animations subtiles** pour feedback utilisateur
+8. **Maintenir le contraste** pour lisibilité
+
+### Composants à Migrer
+
+Les composants suivants doivent être progressivement migrés vers les nouveaux standards :
+
+- [ ] FeatureCard → Utiliser Card avec variant="elevated"
+- [ ] Hero → Intégrer nouvelles couleurs primary
+- [ ] FAQSection → Utiliser Card pour chaque question
+- [ ] PricingCard → Utiliser Card + Button
+- [ ] Dashboard tables → Utiliser Card pour conteneurs
+
+### Fichiers Modifiés
+
+**Configuration** :
+- `tailwind.config.ts` - Nouvelle palette et animations
+
+**Composants Créés** :
+- `components/ui/Button.tsx`
+- `components/ui/Card.tsx`
+- `components/ui/PageTitle.tsx`
+- `components/ui/index.ts`
+- `components/layout/PublicLayout.tsx`
+- `components/layout/DashboardLayout.tsx`
+- `components/layout/AdminLayout.tsx`
+
+**Pages Mises à Jour** :
+- `app/(public)/page.tsx` - Landing avec PublicLayout
+- `app/(public)/pricing/page.tsx` - Pricing avec PublicLayout
+
 ## Utilisation
 
 ### Interface web

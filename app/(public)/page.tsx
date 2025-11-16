@@ -1,12 +1,14 @@
 import Hero from '@/components/public/Hero';
 import FeatureCard from '@/components/public/FeatureCard';
 import FAQSection from '@/components/public/FAQSection';
-import Footer from '@/components/public/Footer';
+import PublicLayout from '@/components/layout/PublicLayout';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 import Link from 'next/link';
 
 export default function HomePage() {
   return (
-    <>
+    <PublicLayout>
       {/* Hero Section */}
       <Hero />
 
@@ -287,36 +289,31 @@ export default function HomePage() {
       <FAQSection />
 
       {/* Final CTA */}
-      <section className="py-20 bg-gradient-to-br from-blue-600 to-indigo-700 text-white">
+      <section className="py-20 bg-gradient-to-br from-primary to-primary-dark text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl sm:text-4xl font-bold mb-6">
             Prêt à créer votre site web professionnel ?
           </h2>
-          <p className="text-xl text-blue-100 mb-10">
+          <p className="text-xl text-primary-100 mb-10">
             Rejoignez les centaines d'artisans et PME qui utilisent déjà Mini Site Generator
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/dashboard/register"
-              className="inline-flex items-center px-8 py-4 bg-white text-blue-700 font-semibold rounded-lg hover:bg-blue-50 transition-all shadow-lg"
-            >
-              Commencer gratuitement
-              <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
+            <Link href="/auth/signup">
+              <Button variant="secondary" size="lg">
+                Commencer gratuitement
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </Button>
             </Link>
-            <Link
-              href="/pricing"
-              className="inline-flex items-center px-8 py-4 bg-blue-500/20 backdrop-blur-sm text-white font-semibold rounded-lg hover:bg-blue-500/30 transition-all border border-white/20"
-            >
-              Voir les tarifs
+            <Link href="/pricing">
+              <Button variant="ghost" size="lg" className="bg-primary-500/20 backdrop-blur-sm text-white border border-white/20 hover:bg-primary-500/30">
+                Voir les tarifs
+              </Button>
             </Link>
           </div>
         </div>
       </section>
-
-      {/* Footer */}
-      <Footer />
-    </>
+    </PublicLayout>
   );
 }
