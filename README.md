@@ -199,6 +199,95 @@ Les tests vérifient que :
 - Toutes les pages sont créées avec du contenu valide
 - Les données du formulaire sont utilisées dans le contenu
 
+## AI Settings (Admin Panel)
+
+Le projet dispose d'un panneau d'administration permettant de **choisir dynamiquement** le fournisseur IA sans modifier les variables d'environnement.
+
+### Accès
+
+Interface accessible via : **`/admin/ai-settings`**
+
+### Fonctionnalités
+
+Le panneau admin permet de choisir entre trois modes :
+
+1. **Claude (Premium)** 🤖
+   - Utilise l'API Anthropic Claude
+   - Meilleure qualité de contenu
+   - Nécessite une clé API et des crédits
+
+2. **IA Locale (DeepSeek/Ollama)** 💻
+   - Utilise un modèle AI local via Ollama
+   - Gratuit et privé
+   - Nécessite Ollama installé et un modèle téléchargé
+
+3. **Mode sans IA (Fallback)** 🚫
+   - Contenu générique interne
+   - Aucun appel IA
+   - Rapide et gratuit
+
+### Configuration persistée
+
+Les paramètres sont sauvegardés dans `.config/ai-settings.json` et persistent entre les redémarrages.
+
+Exemple de fichier :
+```json
+{
+  "provider": "local",
+  "model": "deepseek-coder-v2"
+}
+```
+
+### Ordre de priorité
+
+1. Si `NO_AI=true` → Mode fallback (toujours)
+2. Si fichier `.config/ai-settings.json` existe → Utilise le provider du fichier
+3. Si variable d'environnement `AI_PROVIDER` définie → Utilise la variable
+4. Sinon → Claude (défaut)
+
+### Utilisation
+
+```bash
+# 1. Démarrer le serveur
+npm run dev
+
+# 2. Ouvrir le panneau admin
+http://localhost:3000/admin/ai-settings
+
+# 3. Choisir le provider et sauvegarder
+# Les paramètres sont immédiatement actifs
+```
+
+### API
+
+Le panneau utilise l'API REST `/api/admin/ai-settings` :
+
+**GET** : Récupère les paramètres actuels
+```bash
+curl http://localhost:3000/api/admin/ai-settings
+```
+
+**PUT** : Sauvegarde de nouveaux paramètres
+```bash
+curl -X PUT http://localhost:3000/api/admin/ai-settings \
+  -H "Content-Type: application/json" \
+  -d '{"provider": "local", "model": "deepseek-coder-v2"}'
+```
+
+### Tests
+
+Pour tester le panneau admin :
+
+```bash
+npm run test:unit -- tests/unit/admin/ai-settings.test.ts
+```
+
+Les tests vérifient :
+- Chargement des paramètres depuis le fichier
+- Sauvegarde des paramètres
+- Ordre de priorité correct (NO_AI > config > env > défaut)
+- Compatibilité avec tous les providers
+
 ### Personnalisation
 
 #### Ajouter une nouvelle activité
