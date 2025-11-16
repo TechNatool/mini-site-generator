@@ -659,6 +659,327 @@ Les tests vérifient :
 "Professional team of Plombier in Paris, friendly and approachable, modern office or workshop, professional headshots style"
 ```
 
+## AutoDeploy (Admin Panel)
+
+Le projet dispose d'un système de **déploiement automatique** qui permet de déployer les mini-sites générés vers différents providers (Netlify, Vercel, FTP, ou local).
+
+### Accès
+
+Interfaces accessibles via :
+- **`/admin/deploy-settings`** : Configuration du provider de déploiement
+- **`/admin/deploy`** : Déclenchement du déploiement
+
+### Fonctionnalités
+
+Le panneau AutoDeploy permet de :
+
+1. **Choisir le provider de déploiement** 🚀
+   - **Netlify** : Déploiement automatique via API Netlify
+   - **Vercel** : Déploiement automatique via API Vercel
+   - **FTP/SFTP** : Upload vers serveur FTP ou SFTP
+   - **Local** : Export vers système de fichiers local
+
+2. **Configuration par provider** ⚙️
+   - Chaque provider a ses propres paramètres
+   - Validation automatique des champs requis
+   - Configuration sécurisée et persistante
+
+3. **Déploiement en un clic** 🎯
+   - Génération automatique du ZIP
+   - Upload vers le provider configuré
+   - Retour de l'URL du site déployé
+
+### Configuration persistée
+
+Les paramètres sont sauvegardés dans `.config/deploy-settings.json` et persistent entre les redémarrages.
+
+Exemples de fichiers de configuration :
+
+**Netlify** :
+```json
+{
+  "provider": "netlify",
+  "netlify": {
+    "apiToken": "your-netlify-token",
+    "siteId": "your-site-id"
+  }
+}
+```
+
+**Vercel** :
+```json
+{
+  "provider": "vercel",
+  "vercel": {
+    "apiToken": "your-vercel-token",
+    "projectId": "your-project-id",
+    "teamId": "your-team-id"
+  }
+}
+```
+
+**FTP** :
+```json
+{
+  "provider": "ftp",
+  "ftp": {
+    "host": "ftp.example.com",
+    "port": 21,
+    "username": "user",
+    "password": "pass",
+    "remotePath": "/public_html",
+    "secure": false
+  }
+}
+```
+
+**Local** :
+```json
+{
+  "provider": "local",
+  "local": {
+    "outputPath": "./out/sites"
+  }
+}
+```
+
+### Comment ça fonctionne
+
+1. **Configuration** : Choisir le provider et entrer les identifiants dans `/admin/deploy-settings`
+2. **Génération** : Le site est généré et archivé en ZIP
+3. **Déploiement** : Le ZIP est envoyé au provider configuré via `/admin/deploy`
+4. **Résultat** : L'URL du site déployé est retournée
+
+### Providers de déploiement
+
+#### Netlify
+- Déploiement via l'API Netlify Deploy
+- Nécessite un API Token et un Site ID
+- URL retournée : `https://your-site.netlify.app`
+
+**Configuration requise** :
+- **API Token** : Généré depuis [app.netlify.com](https://app.netlify.com/user/applications)
+- **Site ID** : Trouvé dans les paramètres du site Netlify
+
+Exemple d'appel API :
+```bash
+POST https://api.netlify.com/api/v1/sites/{siteId}/deploys
+Content-Type: application/zip
+Authorization: Bearer {apiToken}
+Body: [ZIP buffer]
+```
+
+#### Vercel
+- Déploiement via l'API Vercel Deployments v13
+- Nécessite un API Token et un Project ID
+- Team ID optionnel pour les équipes
+- URL retournée : `https://your-project.vercel.app`
+
+**Configuration requise** :
+- **API Token** : Généré depuis [vercel.com/account/tokens](https://vercel.com/account/tokens)
+- **Project ID** : Nom du projet Vercel
+- **Team ID** : (Optionnel) ID de l'équipe si projet partagé
+
+Exemple d'appel API :
+```bash
+POST https://api.vercel.com/v13/deployments
+Content-Type: application/json
+Authorization: Bearer {apiToken}
+Body: { "name": "{projectId}", "files": {...} }
+```
+
+#### FTP/SFTP
+- Upload de fichiers via FTP ou SFTP
+- Configuration flexible (port, secure mode)
+- URL retournée : `ftp://host/path` ou `sftp://host/path`
+
+**Configuration requise** :
+- **Host** : Adresse du serveur FTP
+- **Port** : Port FTP (21 par défaut) ou SFTP (22 par défaut)
+- **Username** : Nom d'utilisateur FTP
+- **Password** : Mot de passe FTP
+- **Remote Path** : Chemin distant (ex: `/public_html`)
+- **Secure** : `true` pour SFTP, `false` pour FTP
+
+**Note** : L'implémentation FTP actuelle est un placeholder. Pour la production, intégrer une bibliothèque comme `basic-ftp` ou `ssh2-sftp-client`.
+
+#### Local
+- Export vers le système de fichiers local
+- Crée un répertoire avec timestamp : `site-{timestamp}`
+- URL retournée : `file://{path}/index.html`
+
+**Configuration requise** :
+- **Output Path** : Chemin de sortie (ex: `./out/sites`)
+
+Exemple de structure créée :
+```
+./out/sites/
+└── site-1734345678901/
+    ├── index.html
+    ├── about.html
+    ├── services.html
+    ├── pricing.html
+    ├── contact.html
+    └── legal.html
+```
+
+### Utilisation
+
+```bash
+# 1. Démarrer le serveur
+npm run dev
+
+# 2. Configurer le provider de déploiement
+http://localhost:3000/admin/deploy-settings
+
+# 3. Choisir le provider (netlify, vercel, ftp, local)
+
+# 4. Entrer les identifiants requis et sauvegarder
+
+# 5. Déclencher le déploiement
+http://localhost:3000/admin/deploy
+
+# 6. Cliquer sur "Deploy Mini-Site" et attendre le résultat
+```
+
+### API
+
+Le système AutoDeploy utilise deux API routes :
+
+#### GET/PUT/DELETE /api/admin/deploy-settings
+
+**GET** : Récupère les paramètres de déploiement actuels
+
+```bash
+curl http://localhost:3000/api/admin/deploy-settings
+```
+
+Réponse :
+```json
+{
+  "source": "config-file",
+  "settings": {
+    "provider": "netlify",
+    "netlify": {
+      "apiToken": "your-token",
+      "siteId": "your-site-id"
+    }
+  }
+}
+```
+
+**PUT** : Sauvegarde de nouveaux paramètres
+
+```bash
+curl -X PUT http://localhost:3000/api/admin/deploy-settings \
+  -H "Content-Type: application/json" \
+  -d '{
+    "provider": "netlify",
+    "netlify": {
+      "apiToken": "your-token",
+      "siteId": "your-site-id"
+    }
+  }'
+```
+
+**DELETE** : Réinitialise les paramètres par défaut (local)
+
+```bash
+curl -X DELETE http://localhost:3000/api/admin/deploy-settings
+```
+
+#### POST /api/admin/deploy-site
+
+Déclenche le déploiement d'un mini-site avec le provider configuré.
+
+```bash
+curl -X POST http://localhost:3000/api/admin/deploy-site \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
+Réponse en cas de succès :
+```json
+{
+  "success": true,
+  "provider": "netlify",
+  "url": "https://your-site.netlify.app",
+  "details": "Deployment deploy-123 triggered successfully"
+}
+```
+
+Réponse en cas d'erreur :
+```json
+{
+  "success": false,
+  "provider": "netlify",
+  "error": "Netlify API error: 401 Unauthorized"
+}
+```
+
+### Tests
+
+Pour tester le module AutoDeploy :
+
+```bash
+# Tests de configuration
+npm run test:unit -- tests/unit/lib/deploy-config.test.ts
+
+# Tests des deployers
+npm run test:unit -- tests/unit/lib/deployers.test.ts
+
+# Tests de l'API
+npm run test:unit -- tests/unit/admin/deploy-settings.test.ts
+```
+
+Les tests vérifient :
+- Chargement et sauvegarde des paramètres
+- Validation des providers (netlify, vercel, ftp, local)
+- Validation des champs requis par provider
+- Déploiement avec chaque provider (network calls mocked)
+- Gestion d'erreurs et statuts HTTP corrects
+- Création de répertoires et extraction de fichiers
+- Retour des URLs appropriées
+
+### Contraintes et sécurité
+
+- ✅ **Validation stricte** : Chaque provider valide ses champs requis
+- ✅ **Credentials sécurisés** : Les tokens et mots de passe sont stockés localement dans `.config/`
+- ✅ **Graceful degradation** : En cas d'erreur, retourne un message explicite
+- ✅ **Provider par défaut** : Local (aucune configuration requise)
+- ⚠️ **Fichier .config/** : Ajouter `.config/` à `.gitignore` pour ne pas commiter les credentials
+- ⚠️ **Production** : En production, utiliser des variables d'environnement pour les secrets
+
+### Logs de déploiement
+
+Le système génère des logs clairs pour chaque étape :
+
+```
+[DEPLOY] Starting deployment with provider: netlify
+[DEPLOY] Deploying to Netlify site: my-site-id
+[DEPLOY] Netlify deployment triggered: deploy-123abc
+```
+
+En cas d'erreur :
+```
+[DEPLOY] Error during deployment: Netlify API error: 401 Unauthorized
+[DEPLOY] Netlify deployment failed: Error: ...
+```
+
+### Sécurité
+
+**Recommandations** :
+1. Ne jamais commiter le fichier `.config/deploy-settings.json`
+2. Utiliser des API tokens avec permissions minimales
+3. Régénérer les tokens régulièrement
+4. En production, préférer les variables d'environnement aux fichiers de config
+
+**Ajout à .gitignore** :
+```bash
+# Deploy credentials
+.config/deploy-settings.json
+```
+
 ### Personnalisation
 
 #### Ajouter une nouvelle activité
