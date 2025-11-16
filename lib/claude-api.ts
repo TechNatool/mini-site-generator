@@ -6,6 +6,8 @@ import Anthropic from '@anthropic-ai/sdk';
 import { FormData, AIGeneratedContent } from '@/types/generator';
 import { getAIProvider } from './ai-provider';
 import { generateWithLocalModel } from './local-ai';
+import { loadSEOSettingsSync, type SEOSettings } from './seo-config';
+import { analyzeSEO } from './seo-score';
 
 // Vérifier que la clé API est présente
 const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -38,7 +40,9 @@ export async function generateSiteContent(formData: FormData): Promise<AIGenerat
     console.log('[AI] 💻 Using local AI provider (Ollama/DeepSeek)');
     try {
       const response = await generateWithLocalModel(prompt);
-      return parseAIResponse(response, formData);
+      const content = parseAIResponse(response, formData);
+      // Appliquer le post-processing SEO si activé
+      return await applySEOEnhancement(content, formData, provider);
     } catch (error) {
       console.error('[Local AI] Erreur lors de la génération de contenu:', error);
       console.warn('[Local AI] Fallback vers contenu par défaut');
@@ -61,12 +65,14 @@ export async function generateSiteContent(formData: FormData): Promise<AIGenerat
     });
 
     // Extraire le contenu de la réponse
-    const content = response.content[0];
-    if (content.type !== 'text') {
+    const responseContent = response.content[0];
+    if (responseContent.type !== 'text') {
       throw new Error('Réponse Claude API invalide');
     }
 
-    return parseAIResponse(content.text, formData);
+    const content = parseAIResponse(responseContent.text, formData);
+    // Appliquer le post-processing SEO si activé
+    return await applySEOEnhancement(content, formData, provider);
   } catch (error) {
     console.error('[Claude API] Erreur lors de la génération de contenu:', error);
     // Retourner un contenu par défaut en cas d'erreur
@@ -325,5 +331,115 @@ Retourne UNIQUEMENT le JSON.`;
   } catch (error) {
     console.error('[Claude API] Erreur génération prompts images:', error);
     return fallbackPrompts;
+  }
+}
+
+/**
+ * Construit un prompt pour l'amélioration SEO du contenu
+ */
+function buildSEOEnhancementPrompt(content: AIGeneratedContent, settings: SEOSettings, formData: FormData): string {
+  const toneInstructions = {
+    professional: 'Ton professionnel, formel et expert. Vocabulaire technique approprié.',
+    friendly: 'Ton chaleureux, accessible et sympathique. Utilise "vous" et sois accueillant.',
+    sales: 'Ton persuasif et orienté vente. Met en avant les bénéfices et urgence.',
+    local: 'Ton local et proximité. Insiste sur le service de proximité.',
+    minimalist: 'Ton concis et épuré. Phrases courtes, direct au but.',
+    longform: 'Ton détaillé et exhaustif. Développe les arguments, apporte du contexte.',
+  };
+
+  const keywordsStr = settings.keywords && settings.keywords.length > 0
+    ? `\nMots-clés à intégrer naturellement : ${settings.keywords.join(', ')}`
+    : '';
+
+  return `Tu es un expert en optimisation SEO et copywriting. Tu dois améliorer le contenu suivant pour maximiser son impact SEO tout en préservant sa structure JSON.
+
+CONTENU ACTUEL:
+${JSON.stringify(content, null, 2)}
+
+INSTRUCTIONS D'OPTIMISATION:
+
+1. TON: ${toneInstructions[settings.tone]}${keywordsStr}
+
+2. OPTIMISATIONS SEO À APPLIQUER:
+   - Améliore les titres (h1) pour qu'ils soient plus accrocheurs et incluent des mots-clés
+   - Enrichis les introductions et descriptions avec du vocabulaire SEO pertinent
+   - Intègre les mots-clés de manière naturelle dans le texte
+   - Optimise la metaDescription pour 150-160 caractères
+   - Améliore la lisibilité
+   - Garde le même format JSON exact
+
+3. CONTRAINTES:
+   - GARDE LA MÊME STRUCTURE JSON
+   - Ne change PAS les noms de services
+   - Améliore SEULEMENT les textes descriptifs
+
+4. ACTIVITÉ: ${formData.activity}
+   VILLE: ${formData.city}
+   
+Retourne UNIQUEMENT le JSON amélioré, sans texte avant ou après.`;
+}
+
+/**
+ * Applique le post-processing SEO au contenu si activé
+ */
+async function applySEOEnhancement(
+  content: AIGeneratedContent,
+  formData: FormData,
+  provider: 'claude' | 'local' | 'none'
+): Promise<AIGeneratedContent> {
+  const seoSettings = loadSEOSettingsSync();
+
+  if (!seoSettings || !seoSettings.enabled || provider === 'none') {
+    return content;
+  }
+
+  console.log(`[SEO] Post-processing enabled (tone: ${seoSettings.tone})`);
+
+  try {
+    const seoPrompt = buildSEOEnhancementPrompt(content, seoSettings, formData);
+
+    let improvedResponse: string;
+
+    if (provider === 'local') {
+      console.log('[SEO] Using local AI for SEO enhancement');
+      improvedResponse = await generateWithLocalModel(seoPrompt);
+    } else {
+      console.log('[SEO] Using Claude for SEO enhancement');
+      const response = await anthropic.messages.create({
+        model: MODEL,
+        max_tokens: 4096,
+        messages: [
+          {
+            role: 'user',
+            content: seoPrompt,
+          },
+        ],
+      });
+
+      const responseContent = response.content[0];
+      if (responseContent.type !== 'text') {
+        throw new Error('Réponse SEO invalide');
+      }
+      improvedResponse = responseContent.text;
+    }
+
+    const improvedContent = parseAIResponse(improvedResponse, formData);
+
+    const fullText = JSON.stringify(improvedContent);
+    const seoAnalysis = analyzeSEO(fullText, seoSettings.keywords || []);
+
+    console.log(
+      `[SEO] Enhancement complete - Score: ${seoAnalysis.score}/100`
+    );
+
+    if (seoAnalysis.suggestions.length > 0) {
+      console.log(`[SEO] Suggestions: ${seoAnalysis.suggestions.join(', ')}`);
+    }
+
+    return improvedContent;
+  } catch (error) {
+    console.error('[SEO] Error during post-processing:', error);
+    console.warn('[SEO] Returning original content without SEO enhancement');
+    return content;
   }
 }

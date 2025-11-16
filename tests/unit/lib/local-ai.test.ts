@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { generateSiteContent } from '@/lib/claude-api';
+import { deleteSEOSettings } from '@/lib/seo-config';
 import type { FormData } from '@/types/generator';
 
 describe('Local AI Provider', () => {
@@ -30,7 +31,7 @@ describe('Local AI Provider', () => {
     LOCAL_AI_MODEL?: string;
   };
 
-  beforeEach(() => {
+  beforeEach(async () => {
     // Sauvegarder les valeurs originales
     originalEnv = {
       NO_AI: process.env.NO_AI,
@@ -39,11 +40,18 @@ describe('Local AI Provider', () => {
       LOCAL_AI_MODEL: process.env.LOCAL_AI_MODEL,
     };
 
+    // Nettoyer le fichier SEO config avant chaque test
+    try {
+      await deleteSEOSettings();
+    } catch {
+      // Ignorer si le fichier n'existe pas
+    }
+
     // Reset fetch mock
     global.fetch = vi.fn();
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     // Restaurer les valeurs originales
     if (originalEnv.NO_AI === undefined) {
       delete process.env.NO_AI;
@@ -64,6 +72,13 @@ describe('Local AI Provider', () => {
       delete process.env.LOCAL_AI_MODEL;
     } else {
       process.env.LOCAL_AI_MODEL = originalEnv.LOCAL_AI_MODEL;
+    }
+
+    // Nettoyer le fichier SEO config
+    try {
+      await deleteSEOSettings();
+    } catch {
+      // Ignorer si le fichier n'existe pas
     }
 
     vi.restoreAllMocks();

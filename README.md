@@ -288,6 +288,162 @@ Les tests vérifient :
 - Ordre de priorité correct (NO_AI > config > env > défaut)
 - Compatibilité avec tous les providers
 
+## SEO Boost (Admin Panel)
+
+Le projet dispose d'un système de **post-processing SEO** qui améliore automatiquement le contenu généré pour optimiser le référencement naturel.
+
+### Accès
+
+Interface accessible via : **`/admin/seo-settings`**
+
+### Fonctionnalités
+
+Le panneau SEO Boost permet de :
+
+1. **Activer/Désactiver le SEO Boost** ✅
+   - Applique un post-processing IA après la génération initiale
+   - Optimise le contenu pour le SEO
+   - Calcule et affiche un score SEO
+
+2. **Choisir le ton du contenu** 🎯
+   - **Professional** : Ton formel et expert, vocabulaire technique approprié
+   - **Friendly** : Ton chaleureux, accessible et sympathique
+   - **Sales** : Ton persuasif et orienté vente, met en avant les bénéfices
+   - **Local** : Ton local et proximité, insiste sur le service de quartier
+   - **Minimalist** : Ton concis et épuré, phrases courtes
+   - **Longform** : Ton détaillé et exhaustif, développe les arguments
+
+3. **Définir des mots-clés cibles** 🔑
+   - Liste de mots-clés séparés par des virgules
+   - Intégrés naturellement dans le contenu
+   - Utilisés pour calculer le score SEO
+
+### Configuration persistée
+
+Les paramètres sont sauvegardés dans `.config/seo-settings.json` et persistent entre les redémarrages.
+
+Exemple de fichier :
+```json
+{
+  "enabled": true,
+  "tone": "professional",
+  "keywords": ["plombier paris", "dépannage urgent", "artisan qualifié"]
+}
+```
+
+### Comment ça fonctionne
+
+1. **Génération initiale** : Le contenu est d'abord généré avec l'IA configurée
+2. **Post-processing SEO** : Si activé, le contenu passe par une seconde phase d'optimisation
+3. **Amélioration du contenu** : L'IA améliore les textes selon le ton et les mots-clés
+4. **Analyse SEO** : Un score est calculé et loggé (0-100)
+5. **Préservation de la structure** : Seuls les textes sont améliorés, pas la structure JSON
+
+### Score SEO
+
+Le score SEO est calculé sur 4 critères (25 points chacun) :
+
+- **Densité de mots-clés** (25 pts) : Optimal entre 1-3%
+- **Lisibilité** (25 pts) : Basée sur la longueur moyenne des phrases
+- **Headers** (25 pts) : Nombre de titres H1, H2, H3
+- **Longueur du contenu** (25 pts) : Minimum 300 mots recommandé
+
+Exemple de log :
+```
+[SEO] Post-processing enabled (tone: professional)
+[SEO] Using Claude for SEO enhancement
+[SEO] Enhancement complete - Score: 87/100
+[SEO] Score: 87/100 (keywords: 2.3%, readability: 85.0, headers: 4)
+```
+
+### Contraintes importantes
+
+- ✅ **Compatible NO_AI** : Si `NO_AI=true`, SEO Boost est automatiquement désactivé
+- ✅ **Provider-agnostic** : Utilise le même provider (Claude ou Local) que la génération initiale
+- ✅ **Structure préservée** : Ne modifie jamais la structure JSON, uniquement les textes descriptifs
+- ✅ **Graceful degradation** : En cas d'erreur, retourne le contenu original
+
+### Utilisation
+
+```bash
+# 1. Démarrer le serveur
+npm run dev
+
+# 2. Ouvrir le panneau SEO
+http://localhost:3000/admin/seo-settings
+
+# 3. Activer SEO Boost, choisir le ton et les mots-clés
+
+# 4. Générer un site - le SEO post-processing s'appliquera automatiquement
+```
+
+### API
+
+Le panneau utilise l'API REST `/api/admin/seo-settings` :
+
+**GET** : Récupère les paramètres actuels
+```bash
+curl http://localhost:3000/api/admin/seo-settings
+```
+
+Réponse :
+```json
+{
+  "source": "config-file",
+  "settings": {
+    "enabled": true,
+    "tone": "professional",
+    "keywords": ["plombier", "paris"]
+  }
+}
+```
+
+**PUT** : Sauvegarde de nouveaux paramètres
+```bash
+curl -X PUT http://localhost:3000/api/admin/seo-settings \
+  -H "Content-Type: application/json" \
+  -d '{
+    "enabled": true,
+    "tone": "friendly",
+    "keywords": ["plombier paris", "dépannage"]
+  }'
+```
+
+**DELETE** : Réinitialise les paramètres par défaut
+```bash
+curl -X DELETE http://localhost:3000/api/admin/seo-settings
+```
+
+### Tests
+
+Pour tester le module SEO :
+
+```bash
+npm run test:unit -- tests/unit/admin/seo-settings.test.ts
+```
+
+Les tests vérifient :
+- Chargement et sauvegarde des paramètres
+- Validation des tons (6 valeurs possibles)
+- Validation des keywords (array de strings)
+- Calcul du score SEO
+- Analyse de densité de mots-clés
+- Calcul de lisibilité
+- Détection de headers
+- Compatibilité NO_AI mode
+
+### Exemple de différence
+
+**Sans SEO Boost** :
+```
+"introduction": "Bienvenue ! Jean Dupont est votre plombier de confiance à Paris."
+```
+
+**Avec SEO Boost (tone: professional, keywords: [plombier paris, dépannage urgent])** :
+```
+"introduction": "Expert plombier à Paris depuis 15 ans, Jean Dupont intervient pour tous vos besoins en plomberie. Dépannage urgent 24h/24, installations sanitaires et maintenance préventive dans tout Paris."
+```
+
 ### Personnalisation
 
 #### Ajouter une nouvelle activité
