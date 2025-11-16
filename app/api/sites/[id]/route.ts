@@ -5,11 +5,12 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getSiteById, updateSite } from '@/lib/sites-store';
+import { getSiteByIdForOwner, updateSite } from '@/lib/sites-store';
 import { generateSite, saveSiteFiles } from '@/lib/generator';
 import { createZipFromDirectory } from '@/lib/utils/zip';
 import { loadImageSettings } from '@/lib/image-config';
 import { generateImages } from '@/lib/image-ai';
+import { requireAuth } from '@/lib/auth-guard';
 import path from 'path';
 
 export const runtime = 'nodejs';
@@ -24,9 +25,19 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Require authentication
+    const user = await requireAuth(request);
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
     const { id } = params;
 
-    const site = await getSiteById(id);
+    // Get site only if owned by current user
+    const site = await getSiteByIdForOwner(id, user.id);
 
     if (!site) {
       return NextResponse.json(
@@ -66,13 +77,22 @@ export async function PUT(
   const logs: string[] = [];
 
   try {
+    // Require authentication
+    const user = await requireAuth(request);
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
     const { id } = params;
 
     console.log(`[API Sites] Regenerating site: ${id}`);
     logs.push(`[API Sites] Regenerating site: ${id}`);
 
-    // Get existing site
-    const existingSite = await getSiteById(id);
+    // Get existing site (only if owned by current user)
+    const existingSite = await getSiteByIdForOwner(id, user.id);
 
     if (!existingSite) {
       return NextResponse.json(
@@ -174,7 +194,28 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Require authentication
+    const user = await requireAuth(request);
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
     const { id } = params;
+
+    // Verify ownership before deleting
+    const site = await getSiteByIdForOwner(id, user.id);
+    if (!site) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Site not found',
+        },
+        { status: 404 }
+      );
+    }
 
     const { deleteSite } = await import('@/lib/sites-store');
     const deleted = await deleteSite(id);
@@ -183,9 +224,9 @@ export async function DELETE(
       return NextResponse.json(
         {
           success: false,
-          error: 'Site not found',
+          error: 'Failed to delete site',
         },
-        { status: 404 }
+        { status: 500 }
       );
     }
 

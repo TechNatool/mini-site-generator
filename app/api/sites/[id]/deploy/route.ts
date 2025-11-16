@@ -4,9 +4,10 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getSiteById, updateSite, appendDeploymentLog, type DeploymentLog } from '@/lib/sites-store';
+import { getSiteByIdForOwner, updateSite, appendDeploymentLog, type DeploymentLog } from '@/lib/sites-store';
 import { loadDeploySettingsSync } from '@/lib/deploy-config';
 import { deploySite, createDummyZip } from '@/lib/deployers';
+import { requireAuth } from '@/lib/auth-guard';
 import path from 'path';
 import fs from 'fs/promises';
 
@@ -22,12 +23,21 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Require authentication
+    const user = await requireAuth(request);
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
     const { id } = params;
 
     console.log(`[API Deploy] Deploying site: ${id}`);
 
-    // 1. Get site
-    const site = await getSiteById(id);
+    // 1. Get site (only if owned by current user)
+    const site = await getSiteByIdForOwner(id, user.id);
 
     if (!site) {
       return NextResponse.json(

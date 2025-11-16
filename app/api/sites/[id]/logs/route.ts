@@ -4,7 +4,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getSiteById } from '@/lib/sites-store';
+import { getSiteByIdForOwner } from '@/lib/sites-store';
+import { requireAuth } from '@/lib/auth-guard';
 
 export const runtime = 'nodejs';
 
@@ -17,9 +18,19 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Require authentication
+    const user = await requireAuth(request);
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
     const { id } = params;
 
-    const site = await getSiteById(id);
+    // Get site only if owned by current user
+    const site = await getSiteByIdForOwner(id, user.id);
 
     if (!site) {
       return NextResponse.json(

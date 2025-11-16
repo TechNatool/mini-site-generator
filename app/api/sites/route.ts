@@ -7,10 +7,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateSite, saveSiteFiles } from '@/lib/generator';
 import { createZipFromDirectory } from '@/lib/utils/zip';
-import { loadSites, addSite, type SiteEntry } from '@/lib/sites-store';
+import { getSitesByOwnerId, addSite, type SiteEntry } from '@/lib/sites-store';
 import { generateSiteContent } from '@/lib/claude-api';
 import { generateImages } from '@/lib/image-ai';
 import { loadImageSettings } from '@/lib/image-config';
+import { requireAuth } from '@/lib/auth-guard';
 import path from 'path';
 
 export const runtime = 'nodejs';
@@ -18,11 +19,21 @@ export const maxDuration = 60;
 
 /**
  * GET /api/sites
- * Retourne la liste de tous les sites
+ * Retourne la liste de tous les sites de l'utilisateur connecté
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const sites = await loadSites();
+    // Require authentication
+    const user = await requireAuth(request);
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
+    // Get sites for this user only
+    const sites = await getSitesByOwnerId(user.id);
 
     return NextResponse.json({
       success: true,
@@ -50,6 +61,15 @@ export async function POST(request: NextRequest) {
   const logs: string[] = [];
 
   try {
+    // Require authentication
+    const user = await requireAuth(request);
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
     console.log('[API Sites] Creating new site...');
     logs.push('[API Sites] Creating new site...');
 
@@ -127,6 +147,7 @@ export async function POST(request: NextRequest) {
     // 5. Create SiteEntry
     const siteEntry: SiteEntry = {
       id: site.clientId,
+      ownerId: user.id,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       inputs: formData,

@@ -41,6 +41,7 @@ describe('Sites Store', () => {
       const testSites: SiteEntry[] = [
         {
           id: 'site-1',
+          ownerId: 'user-1',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
           inputs: { name: 'Test Site' },
@@ -69,6 +70,7 @@ describe('Sites Store', () => {
       const testSites: SiteEntry[] = [
         {
           id: 'site-test',
+          ownerId: 'user-test',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
           inputs: { name: 'Save Test' },
@@ -103,6 +105,7 @@ describe('Sites Store', () => {
       const testSites: SiteEntry[] = [
         {
           id: 'site-123',
+          ownerId: 'user-test',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
           inputs: { name: 'Test' },
@@ -130,6 +133,7 @@ describe('Sites Store', () => {
     it('should add new site', async () => {
       const newSite: SiteEntry = {
         id: 'new-site',
+        ownerId: 'user-test',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         inputs: { name: 'New Site' },
@@ -147,6 +151,7 @@ describe('Sites Store', () => {
     it('should throw error if site with ID already exists', async () => {
       const site: SiteEntry = {
         id: 'duplicate',
+        ownerId: 'user-test',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         inputs: {},
@@ -164,6 +169,7 @@ describe('Sites Store', () => {
     it('should update existing site', async () => {
       const site: SiteEntry = {
         id: 'update-test',
+        ownerId: 'user-test',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         inputs: { name: 'Original' },
@@ -192,6 +198,7 @@ describe('Sites Store', () => {
     it('should append deployment log to site', async () => {
       const site: SiteEntry = {
         id: 'log-test',
+        ownerId: 'user-test',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         inputs: {},
@@ -231,6 +238,7 @@ describe('Sites Store', () => {
     it('should delete site by ID', async () => {
       const site: SiteEntry = {
         id: 'delete-test',
+        ownerId: 'user-test',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         inputs: {},

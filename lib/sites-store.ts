@@ -22,6 +22,7 @@ export type DeploymentLog = {
 
 export type SiteEntry = {
   id: string;
+  ownerId: string;
   createdAt: string;
   updatedAt: string;
   inputs: Record<string, any>;
@@ -270,4 +271,85 @@ export async function getSiteStats(): Promise<{
     successfulDeployments,
     latestSites,
   };
+}
+
+/**
+ * Get all sites for a specific user (owner)
+ */
+export async function getSitesByOwnerId(ownerId: string): Promise<SiteEntry[]> {
+  const sites = await loadSites();
+  return sites.filter((s) => s.ownerId === ownerId);
+}
+
+/**
+ * Get a site by ID, but only if owned by the specified user
+ */
+export async function getSiteByIdForOwner(
+  id: string,
+  ownerId: string
+): Promise<SiteEntry | null> {
+  const site = await getSiteById(id);
+
+  if (!site || site.ownerId !== ownerId) {
+    return null;
+  }
+
+  return site;
+}
+
+/**
+ * Get stats for a specific user's dashboard
+ */
+export async function getSiteStatsForOwner(ownerId: string): Promise<{
+  totalSites: number;
+  successfulGenerations: number;
+  successfulDeployments: number;
+  latestSites: SiteEntry[];
+}> {
+  const sites = await getSitesByOwnerId(ownerId);
+
+  const successfulGenerations = sites.filter((s) => s.generation.success).length;
+
+  const successfulDeployments = sites.filter((s) =>
+    s.deployment.logs.some((log) => log.status === 'success')
+  ).length;
+
+  // Get latest 5 sites
+  const latestSites = sites
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 5);
+
+  return {
+    totalSites: sites.length,
+    successfulGenerations,
+    successfulDeployments,
+    latestSites,
+  };
+}
+
+/**
+ * Get deployment logs for a specific user
+ */
+export async function getDeploymentLogsForOwner(
+  ownerId: string
+): Promise<Array<DeploymentLog & { siteId: string; siteName: string }>> {
+  const sites = await getSitesByOwnerId(ownerId);
+  const logs: Array<DeploymentLog & { siteId: string; siteName: string }> = [];
+
+  for (const site of sites) {
+    const siteName = site.inputs.name || site.id;
+
+    for (const log of site.deployment.logs) {
+      logs.push({
+        ...log,
+        siteId: site.id,
+        siteName,
+      });
+    }
+  }
+
+  // Sort by timestamp descending (most recent first)
+  logs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+  return logs;
 }

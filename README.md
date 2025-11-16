@@ -1290,6 +1290,333 @@ export const maPageTemplate: PageTemplate = {
 };
 ```
 
+## Authentication & Multi-User System
+
+Le système d'authentification permet de gérer plusieurs utilisateurs avec des permissions strictes sur leurs sites.
+
+### Overview
+
+- **Stockage** : `.data/users.json` (hashing bcrypt)
+- **Sessions** : Cookies signés HMAC SHA256 (30 jours)
+- **Middleware** : Protection automatique des routes `/dashboard/*`
+- **Multi-tenancy** : Isolation complète des sites par utilisateur
+
+### Architecture
+
+```
+lib/
+├── users-store.ts      # CRUD utilisateurs + bcrypt
+├── session.ts          # Gestion sessions sécurisées
+└── auth-guard.ts       # Middleware de protection
+
+app/api/auth/
+├── register/route.ts   # Création compte
+├── login/route.ts      # Connexion
+└── logout/route.ts     # Déconnexion
+
+app/dashboard/
+├── login/page.tsx      # Page de connexion
+├── register/page.tsx   # Page d'inscription
+└── logout/page.tsx     # Page de déconnexion
+
+middleware.ts           # Protection globale des routes
+```
+
+### User Storage Structure
+
+```typescript
+// .data/users.json
+type UserEntry = {
+  id: string;              // user_<timestamp>_<random>
+  email: string;           // unique, lowercase
+  passwordHash: string;    // bcrypt hash (10 rounds)
+  createdAt: string;       // ISO 8601
+};
+```
+
+### Session Management
+
+Les sessions sont des tokens signés avec HMAC SHA256 :
+
+```typescript
+// Format: userId.timestamp.signature
+const sessionToken = createSession(userId);
+
+// Vérification
+const userId = getUserIdFromSession(sessionToken);
+```
+
+**Configuration** :
+- Cookie : `session`
+- Durée : 30 jours
+- Flags : HttpOnly, SameSite=Strict
+- Secure : true en production, false en dev
+
+**Variable d'environnement** :
+```env
+SESSION_SECRET=change-this-to-a-random-secret-in-production-min-32-chars
+```
+
+### API Routes
+
+#### POST /api/auth/register
+
+Créer un nouveau compte utilisateur.
+
+**Request:**
+```json
+{
+  "email": "user@example.com",
+  "password": "mypassword123"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "user": {
+    "id": "user_1234567890_abc123",
+    "email": "user@example.com",
+    "createdAt": "2025-11-16T10:00:00.000Z"
+  }
+}
+```
+
+**Validation:**
+- Email : format valide
+- Password : minimum 8 caractères
+- Email unique (erreur 409 si déjà utilisé)
+
+**Headers:**
+```
+Set-Cookie: session=<signed-token>; Max-Age=2592000; Path=/; HttpOnly; SameSite=Strict
+```
+
+#### POST /api/auth/login
+
+Connexion à un compte existant.
+
+**Request:**
+```json
+{
+  "email": "user@example.com",
+  "password": "mypassword123"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "user": {
+    "id": "user_1234567890_abc123",
+    "email": "user@example.com",
+    "createdAt": "2025-11-16T10:00:00.000Z"
+  }
+}
+```
+
+**Errors:**
+- 401 : Email ou mot de passe incorrect
+- 400 : Champs manquants
+
+#### POST /api/auth/logout
+
+Déconnexion (supprime le cookie session).
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Logged out successfully"
+}
+```
+
+**Headers:**
+```
+Set-Cookie: session=; Max-Age=0; Path=/; HttpOnly; SameSite=Strict
+```
+
+### Multi-User Site Isolation
+
+Chaque site appartient à un utilisateur via le champ `ownerId` :
+
+```typescript
+type SiteEntry = {
+  id: string;
+  ownerId: string;  // ← ID de l'utilisateur propriétaire
+  createdAt: string;
+  // ...
+};
+```
+
+**Protection des routes API** :
+
+Toutes les routes `/api/sites/*` vérifient l'authentification et filtrent par `ownerId` :
+
+```typescript
+// Exemple: GET /api/sites
+const user = await requireAuth(request);
+if (!user) return 401;
+
+const sites = await getSitesByOwnerId(user.id);  // Filtre automatique
+```
+
+**Permissions** :
+- ✅ Utilisateur peut voir / modifier / supprimer uniquement ses sites
+- ❌ Utilisateur ne peut PAS accéder aux sites d'autres utilisateurs
+- ❌ Retourne 404 (et non 403) pour éviter l'énumération
+
+### Pages Frontend
+
+#### /dashboard/login
+
+Page de connexion avec formulaire email/password.
+
+**Fonctionnalités** :
+- Validation côté client
+- Affichage des erreurs
+- Redirection vers `/dashboard` après login réussi
+- Lien vers `/dashboard/register`
+
+#### /dashboard/register
+
+Page d'inscription avec formulaire email/password/confirmation.
+
+**Validation** :
+- Password minimum 8 caractères
+- Confirmation de password
+- Format email valide
+- Message d'erreur si email déjà utilisé
+
+**Redirection** : `/dashboard` après inscription réussie
+
+#### /dashboard/logout
+
+Page de déconnexion automatique.
+
+**Comportement** :
+- Appelle POST `/api/auth/logout`
+- Redirige vers `/dashboard/login`
+- Affiche un loader pendant le logout
+
+### Route Protection (middleware.ts)
+
+Le middleware Next.js protège automatiquement toutes les routes `/dashboard/*` sauf `/login`, `/register`, `/logout`.
+
+```typescript
+// middleware.ts
+export function middleware(request: NextRequest) {
+  if (pathname.startsWith('/dashboard') && !isPublicRoute) {
+    const userId = getUserIdFromSession(sessionToken);
+
+    if (!userId) {
+      redirect('/dashboard/login');
+    }
+  }
+}
+
+export const config = {
+  matcher: ['/dashboard/:path*'],
+};
+```
+
+### Security Best Practices
+
+**Passwords** :
+- ✅ Hashing avec bcrypt (10 rounds)
+- ✅ Pas de stockage en clair
+- ✅ Minimum 8 caractères requis
+
+**Sessions** :
+- ✅ Tokens signés avec HMAC SHA256
+- ✅ Clé secrète depuis `SESSION_SECRET` (env)
+- ✅ Expiration après 30 jours
+- ✅ Cookies HttpOnly (pas accessible en JS)
+- ✅ SameSite=Strict (protection CSRF)
+
+**API Routes** :
+- ✅ Vérification d'authentification sur toutes les routes sensibles
+- ✅ Isolation des données par `ownerId`
+- ✅ Retour 404 (pas 403) pour éviter l'énumération
+- ✅ Validation stricte des inputs
+
+**Recommendations** :
+- 🔐 Changer `SESSION_SECRET` en production (minimum 32 caractères aléatoires)
+- 🔐 Activer HTTPS en production (`Secure` cookie)
+- 🔐 Mettre à jour bcrypt rounds si nécessaire (actuellement 10)
+- 🔐 Implémenter rate-limiting sur `/api/auth/*` (recommandé)
+- 🔐 Ajouter validation d'email (email de confirmation) (optionnel)
+- 🔐 Implémenter "Forgot Password" (optionnel)
+
+### Workflow Example
+
+```bash
+# 1. Créer un compte
+curl -X POST http://localhost:3000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"user@example.com","password":"password123"}' \
+  -c cookies.txt
+
+# 2. Créer un site (authenticated)
+curl -X POST http://localhost:3000/api/sites \
+  -H "Content-Type: application/json" \
+  -b cookies.txt \
+  -d '{
+    "formData": {
+      "name": "Mon Entreprise",
+      "activity": "plumber",
+      "city": "Paris",
+      "contact": {"phone":"0123456789","email":"contact@example.com"},
+      "services": ["Installation","Réparation"]
+    }
+  }'
+
+# 3. Lister ses sites
+curl http://localhost:3000/api/sites -b cookies.txt
+
+# 4. Se déconnecter
+curl -X POST http://localhost:3000/api/auth/logout -b cookies.txt
+```
+
+### Tests
+
+Les tests unitaires couvrent :
+- ✅ `users-store.ts` : CRUD, hashing, validation
+- ⏳ `session.ts` : création, vérification, expiration
+- ⏳ `auth-guard.ts` : protection des routes
+- ⏳ API auth : register, login, logout
+- ⏳ Multi-tenancy : isolation par ownerId
+
+```bash
+npm run test tests/unit/lib/users-store.test.ts
+```
+
+### Migration Existing Sites
+
+Si vous avez déjà des sites sans `ownerId`, créez un script de migration :
+
+```typescript
+// scripts/migrate-add-owner.ts
+import { loadSites, saveSites } from './lib/sites-store';
+
+async function migrate() {
+  const sites = await loadSites();
+  const defaultOwnerId = 'user_admin_default';
+
+  const updated = sites.map(site => ({
+    ...site,
+    ownerId: site.ownerId || defaultOwnerId
+  }));
+
+  await saveSites(updated);
+  console.log(`Migrated ${sites.length} sites`);
+}
+
+migrate();
+```
+
 ## Utilisation
 
 ### Interface web
