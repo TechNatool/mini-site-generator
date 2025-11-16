@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import type { Language } from '@/types/generator';
 
 export default function NewSitePage() {
   const router = useRouter();
@@ -23,7 +24,8 @@ export default function NewSitePage() {
       secondary: '#d946ef',
     },
     style: 'modern' as const,
-    languages: ['fr'] as const[],
+    template: 'default',
+    languages: ['fr'] as Language[],
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -137,6 +139,55 @@ export default function NewSitePage() {
                 onChange={(e) => setFormData({ ...formData, contact: { ...formData.contact, phone: e.target.value } })}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               />
+            </div>
+          </div>
+
+          <div className="bg-white shadow rounded-lg p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Choose Template</h2>
+            <p className="text-sm text-gray-600 mb-4">Select a professional template optimized for your activity</p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {[
+                { value: 'default', name: 'Classique', color: '#0ea5e9', category: 'General' },
+                { value: 'electrician', name: 'Électricien', color: '#eab308', category: 'Artisan' },
+                { value: 'plumber', name: 'Plombier', color: '#06b6d4', category: 'Artisan' },
+                { value: 'coach', name: 'Coach', color: '#f59e0b', category: 'Wellness' },
+                { value: 'psychologist', name: 'Psychologue', color: '#8b5cf6', category: 'Wellness' },
+                { value: 'lawyer', name: 'Avocat', color: '#1e293b', category: 'Professional' },
+              ].map((template) => (
+                <button
+                  key={template.value}
+                  type="button"
+                  onClick={() => setFormData({ ...formData, template: template.value })}
+                  className={`relative p-4 border-2 rounded-lg text-left transition-all ${
+                    formData.template === template.value
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <h3 className="font-semibold text-gray-900">{template.name}</h3>
+                      <p className="text-xs text-gray-500">{template.category}</p>
+                    </div>
+                    <div
+                      className="w-8 h-8 rounded-full border-2 border-gray-300"
+                      style={{ backgroundColor: template.color }}
+                    />
+                  </div>
+                  {formData.template === template.value && (
+                    <div className="absolute top-2 right-2">
+                      <svg className="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                          fillRule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                  )}
+                </button>
+              ))}
             </div>
           </div>
 

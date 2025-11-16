@@ -44,6 +44,7 @@ export interface FormData {
   // Personnalisation visuelle
   colors: ColorScheme;
   style: SiteStyle;
+  template?: string; // Template name (optional - if not provided, uses old multi-page system)
 
   // Internationalisation
   languages: Language[];

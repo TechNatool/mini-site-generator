@@ -12,7 +12,8 @@ import {
   contactTemplate,
   legalTemplate,
 } from './templates';
-import { generateSitemap, generateRobotsTxt } from './seo';
+import { generateSitemap, generateRobotsTxt, generateSEOMetadata } from './seo';
+import { getTemplate, isValidTemplate, injectTemplateContent } from './templates/templates';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -23,6 +24,112 @@ export function generateClientId(): string {
   const timestamp = Date.now();
   const random = Math.random().toString(36).substring(2, 9);
   return `site-${timestamp}-${random}`;
+}
+
+/**
+ * Génère un site avec le nouveau système de templates (single-page)
+ */
+async function generateSiteWithTemplate(
+  formData: FormData,
+  aiContent: AIGeneratedContent,
+  clientId: string
+): Promise<GeneratedSite> {
+  console.log('[Generator] Utilisation du système de templates...');
+
+  // Récupérer le template
+  const templateName = formData.template && isValidTemplate(formData.template)
+    ? formData.template
+    : 'default';
+
+  const template = getTemplate(templateName);
+  console.log(`[Generator] Template sélectionné: ${template.displayName}`);
+
+  // Préparer le contenu pour injection
+  const year = new Date().getFullYear().toString();
+
+  // Générer le contenu des services
+  const servicesHtml = aiContent.servicesContent
+    .map(
+      (service) => `
+        <div class="service-card">
+          <h3>${service.name}</h3>
+          <p>${service.description}</p>
+          ${service.benefits && service.benefits.length > 0 ? `
+            <ul>
+              ${service.benefits.map(b => `<li>${b}</li>`).join('')}
+            </ul>
+          ` : ''}
+        </div>
+      `
+    )
+    .join('');
+
+  // Générer le contenu "À propos"
+  const aboutHtml = `
+    <p>${aiContent.about.introduction}</p>
+    <p>${aiContent.about.expertise}</p>
+    ${aiContent.about.values && aiContent.about.values.length > 0 ? `
+      <ul>
+        ${aiContent.about.values.map(v => `<li>${v}</li>`).join('')}
+      </ul>
+    ` : ''}
+  `;
+
+  // Générer les tags SEO
+  const seoMeta = generateSEOMetadata('home', formData, aiContent);
+  const seoTags = `
+    <meta name="keywords" content="${aiContent.seo.keywords.join(', ')}">
+    <meta property="og:title" content="${seoMeta.title}">
+    <meta property="og:description" content="${seoMeta.description}">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="${seoMeta.title}">
+    <meta name="twitter:description" content="${seoMeta.description}">
+  `;
+
+  // Injecter le contenu dans le template HTML
+  const injectedHtml = injectTemplateContent(template.files['index.html'] || '', {
+    title: seoMeta.title,
+    description: seoMeta.description,
+    seo_tags: seoTags,
+    business_name: formData.name,
+    hero_title: aiContent.home.h1,
+    hero_subtitle: aiContent.home.tagline,
+    services_content: servicesHtml,
+    about_content: aboutHtml,
+    phone: formData.contact.phone,
+    email: formData.contact.email,
+    address: formData.contact.address || '',
+    year,
+  });
+
+  // Créer la structure de fichiers
+  const files = [
+    { path: 'index.html', content: injectedHtml },
+    { path: 'styles.css', content: template.files['styles.css'] || '' },
+  ];
+
+  // Les pages pour la compatibilité (toutes pointent vers index.html)
+  const pages = {
+    home: injectedHtml,
+    about: injectedHtml,
+    services: injectedHtml,
+    pricing: injectedHtml,
+    contact: injectedHtml,
+    legal: injectedHtml,
+  };
+
+  const generatedSite: GeneratedSite = {
+    clientId,
+    formData,
+    content: aiContent,
+    pages,
+    files,
+    createdAt: new Date(),
+  };
+
+  console.log('[Generator] Site généré avec template:', templateName);
+  return generatedSite;
 }
 
 /**
@@ -51,7 +158,16 @@ export async function generateSite(
     console.log('[Generator] Génération du contenu via Claude API...');
     const aiContent = await generateSiteContent(formData);
 
-    // 3. Générer chaque page avec les templates
+    // 3. Vérifier si un template est sélectionné
+    if (formData.template) {
+      console.log('[Generator] Mode template détecté:', formData.template);
+      return await generateSiteWithTemplate(formData, aiContent, clientId);
+    }
+
+    // 4. Sinon, utiliser l'ancien système multi-page
+    console.log('[Generator] Mode multi-page classique');
+
+    // Générer chaque page avec les templates
     console.log('[Generator] Génération des pages HTML...');
     const pages = {
       home: homeTemplate.generateContent(formData, aiContent),
@@ -62,12 +178,12 @@ export async function generateSite(
       legal: legalTemplate.generateContent(formData, aiContent),
     };
 
-    // 4. Générer les fichiers additionnels
+    // Générer les fichiers additionnels
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
     const sitemap = generateSitemap(clientId, baseUrl);
     const robotsTxt = generateRobotsTxt(baseUrl);
 
-    // 5. Créer la structure de fichiers
+    // Créer la structure de fichiers
     const files = [
       { path: 'index.html', content: pages.home },
       { path: 'about.html', content: pages.about },
@@ -79,7 +195,7 @@ export async function generateSite(
       { path: 'robots.txt', content: robotsTxt },
     ];
 
-    // 6. Créer le site généré
+    // Créer le site généré
     const generatedSite: GeneratedSite = {
       clientId,
       formData,

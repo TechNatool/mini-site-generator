@@ -1617,6 +1617,442 @@ async function migrate() {
 migrate();
 ```
 
+## Templates Premium
+
+Le projet dispose d'un **système de templates professionnels** optimisés par profession, permettant de générer des sites single-page avec des designs spécifiques à chaque activité.
+
+### Overview
+
+- **6 templates disponibles** : Default, Électricien, Plombier, Coach, Psychologue, Avocat
+- **Architecture modulaire** : Facile d'ajouter de nouveaux templates
+- **Injection de contenu IA** : Placeholders `{{variable}}` remplacés automatiquement
+- **Single-page design** : index.html + styles.css optimisés
+- **Compatibilité totale** : Fonctionne avec AI, SEO Boost, Images, AutoDeploy
+
+### Architecture
+
+```
+lib/templates/
+├── templates.ts              # Système de gestion des templates
+├── default/
+│   ├── index.html           # Structure HTML avec placeholders
+│   └── styles.css           # Thème bleu moderne
+├── electrician/
+│   ├── index.html
+│   └── styles.css           # Thème jaune/or technique
+├── plumber/
+│   ├── index.html
+│   └── styles.css           # Thème cyan aquatique
+├── coach/
+│   ├── index.html
+│   └── styles.css           # Thème orange motivant
+├── psychologist/
+│   ├── index.html
+│   └── styles.css           # Thème violet apaisant
+└── lawyer/
+    ├── index.html
+    └── styles.css           # Thème slate professionnel
+```
+
+### Templates Disponibles
+
+| Template | Nom | Couleur | Catégorie | Description |
+|----------|-----|---------|-----------|-------------|
+| default | Classique | #0ea5e9 (Bleu) | General | Moderne et polyvalent pour toute activité |
+| electrician | Électricien | #eab308 (Jaune) | Artisan | Design technique avec motifs électriques |
+| plumber | Plombier | #06b6d4 (Cyan) | Artisan | Palette aquatique avec accent services urgence |
+| coach | Coach | #f59e0b (Orange) | Wellness | Tons motivants, inspirant et dynamique |
+| psychologist | Psychologue | #8b5cf6 (Violet) | Wellness | Design apaisant avec formes rondes |
+| lawyer | Avocat | #1e293b (Slate) | Professional | Sobre et professionnel, haute crédibilité |
+
+### Utilisation
+
+#### 1. Sélection du template dans le Dashboard
+
+Lors de la création d'un site via `/dashboard/sites/new`, un sélecteur visuel permet de choisir le template :
+
+```tsx
+// Le template est ajouté au formData
+{
+  name: "Jean Dupont",
+  activity: "plombier",
+  city: "Paris",
+  template: "plumber",  // ← Template sélectionné
+  // ...
+}
+```
+
+#### 2. Génération automatique
+
+Le générateur détecte si un template est sélectionné et utilise le système de templates au lieu du système multi-page :
+
+```typescript
+// Dans lib/generator.ts
+if (formData.template) {
+  // Utilise le système de templates single-page
+  return await generateSiteWithTemplate(formData, aiContent, clientId);
+}
+
+// Sinon, utilise l'ancien système multi-page
+```
+
+#### 3. Placeholders et injection
+
+Les templates utilisent des placeholders qui sont remplacés par le contenu IA :
+
+**Placeholders supportés** :
+```html
+{{title}}               <!-- Meta title SEO -->
+{{description}}         <!-- Meta description SEO -->
+{{seo_tags}}           <!-- Tags OpenGraph, Twitter, etc. -->
+{{business_name}}      <!-- Nom de l'entreprise -->
+{{hero_title}}         <!-- Titre principal (H1) -->
+{{hero_subtitle}}      <!-- Sous-titre accrocheur -->
+{{services_content}}   <!-- HTML des services -->
+{{about_content}}      <!-- Texte "À propos" -->
+{{phone}}              <!-- Téléphone -->
+{{email}}              <!-- Email -->
+{{address}}            <!-- Adresse -->
+{{year}}               <!-- Année courante -->
+```
+
+**Exemple d'injection** :
+```html
+<!-- Template (before) -->
+<h1>{{business_name}}</h1>
+<p>{{hero_subtitle}}</p>
+
+<!-- Résultat (after) -->
+<h1>Jean Dupont Plomberie</h1>
+<p>Votre plombier de confiance à Paris depuis 15 ans</p>
+```
+
+### Créer un Nouveau Template
+
+#### Étape 1 : Créer le répertoire
+
+```bash
+mkdir -p lib/templates/mon-template
+```
+
+#### Étape 2 : Créer index.html
+
+```html
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}}</title>
+    <meta name="description" content="{{description}}">
+    {{seo_tags}}
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <h1>{{business_name}}</h1>
+    </nav>
+
+    <section class="hero">
+        <h2>{{hero_title}}</h2>
+        <p>{{hero_subtitle}}</p>
+    </section>
+
+    <section class="services">
+        <h2>Nos Services</h2>
+        <div class="services-grid">
+            {{services_content}}
+        </div>
+    </section>
+
+    <section class="about">
+        <h2>À Propos</h2>
+        {{about_content}}
+    </section>
+
+    <section class="contact">
+        <h3>Contact</h3>
+        <p>Téléphone: {{phone}}</p>
+        <p>Email: {{email}}</p>
+    </section>
+
+    <footer>
+        <p>&copy; {{year}} {{business_name}}</p>
+    </footer>
+</body>
+</html>
+```
+
+#### Étape 3 : Créer styles.css
+
+```css
+:root {
+    --primary-color: #your-color;
+    --primary-dark: #your-dark-color;
+    /* Autres variables CSS */
+}
+
+body {
+    font-family: -apple-system, sans-serif;
+    color: var(--primary-color);
+}
+
+/* Vos styles personnalisés */
+```
+
+#### Étape 4 : Ajouter aux templates.ts
+
+```typescript
+// Dans lib/templates/templates.ts
+
+// 1. Ajouter au tableau TEMPLATES
+export const TEMPLATES = [
+  'default',
+  'electrician',
+  'plumber',
+  'coach',
+  'psychologist',
+  'lawyer',
+  'mon-template',  // ← Nouveau template
+] as const;
+
+// 2. Ajouter aux métadonnées
+const TEMPLATE_METADATA: Record<TemplateName, Omit<TemplateDefinition, 'files'>> = {
+  // ... templates existants
+  'mon-template': {
+    name: 'mon-template',
+    displayName: 'Mon Template',
+    description: 'Description de mon template personnalisé',
+    color: '#your-color',
+    previewImage: '/templates/mon-template-preview.png',
+    category: 'general', // 'general' | 'artisan' | 'professional' | 'wellness'
+  },
+};
+```
+
+#### Étape 5 : Ajouter au sélecteur UI
+
+```tsx
+// Dans app/dashboard/sites/new/page.tsx
+{[
+  { value: 'default', name: 'Classique', color: '#0ea5e9', category: 'General' },
+  // ... autres templates
+  { value: 'mon-template', name: 'Mon Template', color: '#your-color', category: 'General' },
+].map((template) => (
+  // ... render logic
+))}
+```
+
+### Fonctionnement Interne
+
+#### 1. Chargement du Template
+
+```typescript
+// lib/templates/templates.ts
+export function getTemplate(name: TemplateName): TemplateDefinition {
+  const metadata = TEMPLATE_METADATA[name];
+  const templateDir = path.join(process.cwd(), 'lib', 'templates', name);
+
+  const files: Record<string, string> = {};
+
+  // Charger index.html
+  const indexPath = path.join(templateDir, 'index.html');
+  if (fs.existsSync(indexPath)) {
+    files['index.html'] = fs.readFileSync(indexPath, 'utf-8');
+  }
+
+  // Charger styles.css
+  const stylesPath = path.join(templateDir, 'styles.css');
+  if (fs.existsSync(stylesPath)) {
+    files['styles.css'] = fs.readFileSync(stylesPath, 'utf-8');
+  }
+
+  return { ...metadata, files };
+}
+```
+
+#### 2. Injection du Contenu
+
+```typescript
+// lib/templates/templates.ts
+export function injectTemplateContent(
+  templateHtml: string,
+  data: Record<string, string>
+): string {
+  let result = templateHtml;
+
+  // Remplacer tous les placeholders
+  for (const [key, value] of Object.entries(data)) {
+    if (value !== undefined) {
+      const placeholder = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
+      result = result.replace(placeholder, value);
+    }
+  }
+
+  // Supprimer les placeholders restants
+  result = result.replace(/\{\{[^}]+\}\}/g, '');
+
+  return result;
+}
+```
+
+#### 3. Génération avec Template
+
+```typescript
+// lib/generator.ts
+async function generateSiteWithTemplate(
+  formData: FormData,
+  aiContent: AIGeneratedContent,
+  clientId: string
+): Promise<GeneratedSite> {
+  // 1. Récupérer le template
+  const templateName = formData.template || 'default';
+  const template = getTemplate(templateName);
+
+  // 2. Préparer les services HTML
+  const servicesHtml = aiContent.servicesContent
+    .map(service => `
+      <div class="service-card">
+        <h3>${service.name}</h3>
+        <p>${service.description}</p>
+      </div>
+    `)
+    .join('');
+
+  // 3. Générer les tags SEO
+  const seoMeta = generateSEOMetadata('home', formData, aiContent);
+  const seoTags = `
+    <meta property="og:title" content="${seoMeta.title}">
+    <meta property="og:description" content="${seoMeta.description}">
+  `;
+
+  // 4. Injecter le contenu
+  const injectedHtml = injectTemplateContent(template.files['index.html'], {
+    title: seoMeta.title,
+    description: seoMeta.description,
+    seo_tags: seoTags,
+    business_name: formData.name,
+    hero_title: aiContent.home.h1,
+    hero_subtitle: aiContent.home.tagline,
+    services_content: servicesHtml,
+    about_content: aiContent.about.introduction,
+    phone: formData.contact.phone,
+    email: formData.contact.email,
+    year: new Date().getFullYear().toString(),
+  });
+
+  // 5. Créer les fichiers
+  return {
+    clientId,
+    formData,
+    content: aiContent,
+    pages: { home: injectedHtml, /* ... */ },
+    files: [
+      { path: 'index.html', content: injectedHtml },
+      { path: 'styles.css', content: template.files['styles.css'] },
+    ],
+    createdAt: new Date(),
+  };
+}
+```
+
+### Compatibilité et Intégration
+
+**Templates ✅ Compatibles avec** :
+- ✅ **AI Provider** : Claude, Local, None (NO_AI mode)
+- ✅ **SEO Boost** : Post-processing SEO appliqué normalement
+- ✅ **Auto-Images** : Images générées et intégrées si configuré
+- ✅ **AutoDeploy** : Déploiement vers Netlify, Vercel, FTP, Local
+- ✅ **Multi-utilisateurs** : Isolation par `ownerId`
+- ✅ **Dashboard** : Regénération et redéploiement supportés
+
+**Différences avec système multi-page** :
+- ❌ Pas de pages séparées (about.html, services.html, etc.)
+- ✅ Fichiers générés : `index.html` + `styles.css` seulement
+- ✅ Navigation smooth scroll (#services, #about, #contact)
+- ✅ Plus léger et rapide à charger
+- ✅ Mieux adapté pour artisans et professionnels
+
+### Page Publique Templates
+
+Une page marketing `/templates` affiche tous les templates disponibles :
+
+**Fonctionnalités** :
+- Affichage visuel de chaque template avec couleur
+- Description et catégorie
+- Liste des features incluses
+- CTA vers création de site
+- SEO optimisé
+
+**Accès** : [http://localhost:3000/templates](http://localhost:3000/templates)
+
+### Tests
+
+```bash
+# Tester le chargement des templates
+npm run test:unit -- tests/unit/lib/templates/templates.test.ts
+
+# Vérifier l'injection de contenu
+npm run test:unit -- tests/unit/lib/generator.test.ts
+```
+
+### Exemples de Personnalisation CSS
+
+#### Variables CSS
+
+Tous les templates utilisent des variables CSS pour faciliter la personnalisation :
+
+```css
+:root {
+    --primary-color: #0ea5e9;      /* Couleur principale */
+    --primary-dark: #0284c7;       /* Variante sombre */
+    --secondary-color: #f59e0b;    /* Couleur secondaire */
+    --accent-color: #fbbf24;       /* Accent */
+    --text-color: #1f2937;         /* Texte principal */
+    --text-light: #6b7280;         /* Texte secondaire */
+    --bg-light: #f9fafb;           /* Fond clair */
+    --border-color: #e5e7eb;       /* Bordures */
+}
+```
+
+#### Spécificités par Template
+
+**Electrician** :
+- Motif diagonal rayé dans le hero
+- Border-top accent sur les cartes
+- Navbar sombre (#1f2937)
+
+**Plumber** :
+- Palette cyan/aqua
+- Border-left accent sur les cartes
+- Border-bottom sur navbar
+
+**Coach** :
+- Tons chauds et motivants
+- Border-radius arrondis (0.75rem)
+- Box-shadows avec teinte orange
+
+**Psychologist** :
+- Formes très arrondies (border-radius: 1rem)
+- Gradient radial dans hero
+- Focus states avec glow violet
+
+**Lawyer** :
+- Font serif pour le body
+- Accent doré (#d4af37)
+- Border-left accent doré
+- Footer avec border-top doré
+
+### Roadmap
+
+**À venir** :
+- [ ] Éditeur visuel de templates
+- [ ] Import/Export de templates personnalisés
+- [ ] Marketplace de templates communautaires
+- [ ] Preview temps réel des templates
+- [ ] Personnalisation des couleurs par template
+- [ ] Multi-langues dans les templates
+
 ## Utilisation
 
 ### Interface web
