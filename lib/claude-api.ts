@@ -21,6 +21,12 @@ const MODEL = process.env.CLAUDE_MODEL || 'claude-3-5-sonnet-20241022';
  * Génère tout le contenu du site via Claude API
  */
 export async function generateSiteContent(formData: FormData): Promise<AIGeneratedContent> {
+  // Mode NO_AI : utiliser directement le fallback content sans appeler l'API
+  if (process.env.NO_AI === 'true') {
+    console.log('[Claude API] 🚫 Mode NO_AI activé → contenu de fallback utilisé (aucune requête Anthropic)');
+    return generateFallbackContent(formData);
+  }
+
   const prompt = buildContentGenerationPrompt(formData);
 
   try {
@@ -234,6 +240,16 @@ export async function generateImagePrompts(
   activity: string,
   style: string
 ): Promise<{ hero: string; about: string; services: string }> {
+  // Mode NO_AI : retourner directement le fallback sans appeler l'API
+  if (process.env.NO_AI === 'true') {
+    console.log('[Claude API] 🚫 Mode NO_AI activé → prompts images par défaut (aucune requête Anthropic)');
+    return {
+      hero: `Professional ${activity} at work, modern and clean`,
+      about: `Portrait of professional ${activity}, friendly and trustworthy`,
+      services: `${activity} tools and equipment, professional setup`,
+    };
+  }
+
   const prompt = `Génère 3 descriptions courtes pour des images professionnelles d'un site web de ${activity}.
 Style : ${style}
 

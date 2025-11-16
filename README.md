@@ -124,6 +124,81 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 MAX_SITES_PER_DAY=100
 ```
 
+## Mode NO_AI (pour tests et développement)
+
+Le mode NO_AI permet d'exécuter le générateur sans appeler l'API Anthropic. Utile pour :
+- **Tests E2E** : Aucun crédit API consommé
+- **Développement hors ligne** : Pas besoin de clé API
+- **CI/CD** : Tests automatisés sans coûts
+
+### Activation
+
+Définir la variable d'environnement `NO_AI=true` :
+
+```bash
+# En ligne de commande
+NO_AI=true npm run dev
+
+# Dans .env
+NO_AI=true
+```
+
+### Comportement
+
+Quand `NO_AI=true` :
+- ✅ **Aucun appel à Anthropic** : Pas de requêtes API
+- ✅ **Contenu de fallback** : Contenu générique mais professionnel
+- ✅ **Site complet** : Toutes les pages sont générées
+- ✅ **Export ZIP** : Fonctionne normalement
+- ✅ **Preview** : Fonctionne normalement
+- ⚠️ **Contenu moins personnalisé** : Textes génériques
+
+### Exemples d'utilisation
+
+```bash
+# Développement sans API
+NO_AI=true npm run dev
+
+# Tests E2E sans consommer de crédits
+NO_AI=true npm run test:e2e
+
+# Build de production en mode NO_AI
+NO_AI=true npm run build
+```
+
+### Logs
+
+En mode NO_AI, des logs clairs indiquent que le mode est activé :
+
+```
+[API] 🚫 Mode NO_AI activé → aucune requête Anthropic envoyée
+[Generator] 🚫 Mode NO_AI activé → génération sans appel à Anthropic
+[Claude API] 🚫 Mode NO_AI activé → contenu de fallback utilisé (aucune requête Anthropic)
+```
+
+### Contenu de fallback
+
+Le contenu généré en mode NO_AI est :
+- Basé sur les données du formulaire (nom, activité, ville)
+- Professionnel et cohérent
+- Adapté aux services sélectionnés
+- SEO-friendly avec métadonnées appropriées
+- Inclut des témoignages génériques
+
+### Tests
+
+Pour vérifier que le mode NO_AI fonctionne :
+
+```bash
+npm run test:unit -- tests/unit/lib/no-ai-mode.test.ts
+```
+
+Les tests vérifient que :
+- Aucun appel API n'est effectué quand `NO_AI=true`
+- Le contenu de fallback est correctement généré
+- Toutes les pages sont créées avec du contenu valide
+- Les données du formulaire sont utilisées dans le contenu
+
 ### Personnalisation
 
 #### Ajouter une nouvelle activité

@@ -17,6 +17,11 @@ export async function POST(request: NextRequest) {
   try {
     console.log('[API] Réception de la requête de génération de site');
 
+    // Afficher le mode de génération
+    if (process.env.NO_AI === 'true') {
+      console.log('[API] 🚫 Mode NO_AI activé → aucune requête Anthropic envoyée');
+    }
+
     // Parser le body
     const body = (await request.json()) as GenerateSiteRequest;
     const { formData, options } = body;

@@ -38,6 +38,11 @@ export async function generateSite(
   try {
     console.log('[Generator] Début de la génération du site...');
 
+    // Afficher le mode de génération
+    if (process.env.NO_AI === 'true') {
+      console.log('[Generator] 🚫 Mode NO_AI activé → génération sans appel à Anthropic');
+    }
+
     // 1. Générer l'ID client
     const clientId = generateClientId();
     console.log('[Generator] Client ID:', clientId);
