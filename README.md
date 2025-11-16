@@ -980,6 +980,269 @@ En cas d'erreur :
 .config/deploy-settings.json
 ```
 
+## Client Admin + Site Manager (Dashboard)
+
+Le projet dispose d'un **dashboard complet de gestion des sites** permettant de créer, gérer, regénérer et déployer les mini-sites depuis une interface centralisée.
+
+### Accès
+
+Dashboard accessible via : **`/dashboard`**
+
+### Fonctionnalités
+
+Le dashboard permet de :
+
+1. **Vue d'ensemble** 📊   - Statistiques : nombre total de sites, générations réussies, déploiements
+   - Derniers sites créés   - Accès rapide aux actions courantes
+
+2. **Gestion des sites** 🗂️
+   - Liste complète de tous les sites générés   - Filtrage par statut (tous, générés, déployés)
+   - Actions rapides : voir, télécharger ZIP, supprimer
+
+3. **Création de sites** ➕   - Formulaire simplifié de création
+   - Génération complète (IA, SEO, images selon config)   - Sauvegarde automatique dans le store
+
+4. **Détail et actions** 🔍
+   - Informations complètes du site   - **Regénération** : relance la génération IA avec les mêmes inputs
+   - **Redéploiement** : déploie vers le provider configuré   - **Logs détaillés** : génération et déploiement   - Téléchargement du ZIP
+   - Lien vers le site déployé
+
+5. **Historique des déploiements** 📜
+   - Vue globale de tous les déploiements   - Filtrage par site, provider, statut
+   - Timestamps et messages détaillés
+
+### Stockage persistant
+
+Les sites sont sauvegardés dans `.data/sites.json` avec la structure suivante :
+
+```typescript
+type SiteEntry = {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  inputs: Record<string, any>;  // Formulaire initial
+
+  generation: {
+    success: boolean;
+    zipPath: string | null;
+    html: Record<string, string> | null;
+    logs: string[];
+  };
+
+  deployment: {
+    provider: string | null;
+    url: string | null;
+    timestamp: string | null;
+    logs: DeploymentLog[];
+  };
+};
+```
+
+### API REST complète
+
+#### GET /api/sites
+Liste tous les sites
+
+```bash
+curl http://localhost:3000/api/sites
+```
+
+Réponse :
+```json
+{
+  "success": true,
+  "sites": [...],
+  "total": 5
+}
+```
+
+#### POST /api/sites
+Crée un nouveau site
+
+```bash
+curl -X POST http://localhost:3000/api/sites \
+  -H "Content-Type: application/json" \
+  -d '{
+    "formData": {
+      "name": "Jean Dupont",
+      "activity": "plombier",
+      "city": "Paris",
+      "services": ["Dépannage"],
+      "contact": {
+        "email": "jean@example.com",
+        "phone": "06 12 34 56 78"
+      },
+      "colors": { "primary": "#0ea5e9", "secondary": "#d946ef" },
+      "style": "modern",
+      "languages": ["fr"]
+    },
+    "options": {}
+  }'
+```
+
+Réponse :
+```json
+{
+  "success": true,
+  "id": "site-1734567890-abc123",
+  "message": "Site created successfully",
+  "zipUrl": "/downloads/site-1734567890-abc123.zip",
+  "previewUrl": "/preview/site-1734567890-abc123"
+}
+```
+
+#### GET /api/sites/[id]
+Récupère les détails d'un site
+
+```bash
+curl http://localhost:3000/api/sites/site-123
+```
+
+#### PUT /api/sites/[id]
+Regénère un site existant (conserve les inputs, relance l'IA)
+
+```bash
+curl -X PUT http://localhost:3000/api/sites/site-123 \
+  -H "Content-Type: application/json" \
+  -d '{ "options": {} }'
+```
+
+#### POST /api/sites/[id]/deploy
+Déploie un site avec AutoDeploy
+
+```bash
+curl -X POST http://localhost:3000/api/sites/site-123/deploy
+```
+
+Réponse :
+```json
+{
+  "success": true,
+  "deployment": {
+    "provider": "netlify",
+    "url": "https://site-123.netlify.app",
+    "details": "Deployment successful"
+  }
+}
+```
+
+#### GET /api/sites/[id]/logs
+Récupère tous les logs (génération + déploiement)
+
+```bash
+curl http://localhost:3000/api/sites/site-123/logs
+```
+
+#### DELETE /api/sites/[id]
+Supprime un site
+
+```bash
+curl -X DELETE http://localhost:3000/api/sites/site-123
+```
+
+### Pages du Dashboard
+
+#### /dashboard
+**Page d'accueil** : statistiques, derniers sites, actions rapides
+
+#### /dashboard/sites
+**Liste des sites** : tableau complet avec filtres, actions (voir, télécharger, supprimer)
+
+#### /dashboard/sites/new
+**Création de site** : formulaire simplifié pour générer un nouveau site
+
+#### /dashboard/sites/[id]
+**Détail d'un site** :
+- Informations complètes
+- Boutons : Regénérer, Déployer, Télécharger ZIP
+- Statuts de génération et déploiement
+- Logs complets (génération + déploiement)
+- Lien vers le site déployé
+
+#### /dashboard/deployments
+**Historique global** : tous les déploiements de tous les sites, triés par date
+
+### Intégration avec les modules existants
+
+Le dashboard **réutilise tous les modules** :
+- **AI Provider** : utilise le provider configuré (Claude, Local, None)
+- **SEO Boost** : applique automatiquement si activé
+- **Auto-Images** : génère des images si configuré
+- **AutoDeploy** : utilise les deploy-settings pour le déploiement
+
+Compatible avec `NO_AI=true` et tous les providers.
+
+### Workflow complet
+
+1. **Créer un site** : `/dashboard/sites/new` → POST `/api/sites`
+2. **Voir la liste** : `/dashboard/sites` → GET `/api/sites`
+3. **Consulter détails** : `/dashboard/sites/[id]` → GET `/api/sites/[id]`
+4. **Regénérer** : Bouton "Regenerate" → PUT `/api/sites/[id]`
+5. **Déployer** : Bouton "Deploy" → POST `/api/sites/[id]/deploy`
+6. **Historique** : `/dashboard/deployments` → Logs de tous les sites
+
+### Tests
+
+Pour tester le module Dashboard :
+
+```bash
+# Tests du store
+npm run test:unit -- tests/unit/lib/sites-store.test.ts
+```
+
+Les tests vérifient :
+- Chargement et sauvegarde des sites
+- CRUD complet (Create, Read, Update, Delete)
+- Ajout de logs de déploiement
+- Gestion des erreurs (fichier manquant, JSON invalide)
+- Création automatique du répertoire `.data/`
+
+### Architecture
+
+```
+app/
+├── dashboard/
+│   ├── page.tsx                    # Accueil dashboard
+│   ├── sites/
+│   │   ├── page.tsx                # Liste sites
+│   │   ├── new/
+│   │   │   └── page.tsx            # Créer site
+│   │   └── [id]/
+│   │       └── page.tsx            # Détail site
+│   └── deployments/
+│       └── page.tsx                # Historique déploiements
+├── api/
+│   └── sites/
+│       ├── route.ts                # GET/POST sites
+│       └── [id]/
+│           ├── route.ts            # GET/PUT/DELETE site
+│           ├── deploy/
+│           │   └── route.ts        # POST déploiement
+│           └── logs/
+│               └── route.ts        # GET logs
+
+lib/
+└── sites-store.ts                  # Store persistant (.data/sites.json)
+
+.data/
+└── sites.json                      # Base de données des sites
+```
+
+### Sécurité et maintenance
+
+**Recommandations** :
+1. Ajouter `.data/` à `.gitignore` (déjà fait)
+2. Sauvegarder régulièrement `.data/sites.json`
+3. Implémenter une authentification pour `/dashboard` en production
+4. Limiter le nombre de sites par utilisateur
+5. Nettoyer automatiquement les anciens ZIP
+
+**Ajout à .gitignore** :
+```bash
+# Sites database
+.data/
+```
+
 ### Personnalisation
 
 #### Ajouter une nouvelle activité

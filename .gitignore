@@ -56,3 +56,4 @@ temp/
 # Debug
 .pnpm-debug.log*
 .config/
+.data/
