@@ -48,6 +48,9 @@ public/downloads/*.zip
 # Generated documentation
 docs-autogen/
 
+# Runtime data (logs, rate limiting, etc.)
+.data/
+
 # Temporary files
 tmp/
 temp/

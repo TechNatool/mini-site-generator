@@ -1,0 +1,11 @@
+{
+  "enabled": false,
+  "message": "ForgeWeb est en maintenance. Revenez dans quelques minutes.",
+  "estimatedEndTime": null,
+  "bypassRoles": ["admin"],
+  "allowedPaths": [
+    "/admin",
+    "/dashboard/logout",
+    "/api/admin"
+  ]
+}
