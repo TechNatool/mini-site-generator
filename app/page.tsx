@@ -105,9 +105,41 @@ export default function Home() {
       {/* Footer */}
       <footer className="bg-gray-900 text-gray-300 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            {/* Left column - Company info */}
+            <div className="text-center md:text-left">
+              <h3 className="text-white font-semibold mb-2">ForgeWeb</h3>
+              <p className="text-sm">
+                Générateur de Mini-Sites. Propulsé par Claude AI.
+              </p>
+            </div>
+
+            {/* Right column - Legal links */}
+            <div className="text-center md:text-right">
+              <h3 className="text-white font-semibold mb-2">Informations légales</h3>
+              <div className="flex flex-col space-y-1 text-sm">
+                <a href="/legal/privacy-policy" className="hover:text-white transition-colors">
+                  Politique de confidentialité
+                </a>
+                <a href="/legal/terms" className="hover:text-white transition-colors">
+                  Conditions générales
+                </a>
+                <a href="/legal/cookies" className="hover:text-white transition-colors">
+                  Politique cookies
+                </a>
+                <a href="/legal/refund-policy" className="hover:text-white transition-colors">
+                  Politique de remboursement
+                </a>
+                <a href="/legal/ai-disclaimer" className="hover:text-white transition-colors">
+                  Avertissement IA
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-6 border-t border-gray-800 text-center">
             <p className="text-sm">
-              &copy; {new Date().getFullYear()} Générateur de Mini-Sites. Propulsé par Claude AI.
+              &copy; {new Date().getFullYear()} ForgeWeb. Tous droits réservés.
             </p>
           </div>
         </div>

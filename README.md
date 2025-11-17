@@ -578,6 +578,184 @@ git commit -m "docs: update installation guide"
 
 Voir [CONVENTIONS.md](CONVENTIONS.md) pour les détails complets.
 
+## Legal Module (Bootstrap Edition)
+
+### Overview
+
+ForgeWeb includes a complete legal module with 5 essential pages designed to protect your SaaS while remaining accessible without legal assistance. This is a **bootstrap/starter version** that MUST be reviewed by a legal professional before commercial launch.
+
+### Included Pages
+
+The legal module provides the following pages under `/legal`:
+
+1. **Privacy Policy** (`/legal/privacy-policy`)
+   - Personal data collection and usage
+   - GDPR compliance basics
+   - User rights (access, rectification, deletion, etc.)
+   - International data transfers
+   - Cookie usage overview
+
+2. **Terms of Service** (`/legal/terms`)
+   - Service description and limitations
+   - User account management
+   - Acceptable use policy
+   - Intellectual property rights
+   - Liability limitations and disclaimers
+   - Payment and refund overview
+
+3. **Cookie Policy** (`/legal/cookies`)
+   - Types of cookies used
+   - Third-party cookies (Google Analytics, Vercel, etc.)
+   - Cookie management and user preferences
+   - GDPR cookie consent requirements
+   - Local storage and similar technologies
+
+4. **Refund Policy** (`/legal/refund-policy`)
+   - Refund eligibility conditions
+   - EU consumer withdrawal rights (14 days)
+   - Refund request process
+   - Processing timelines
+   - Subscription cancellation terms
+
+5. **AI Disclaimer** (`/legal/ai-disclaimer`) ⚠️ **CRITICAL FOR AI-BASED SERVICES**
+   - AI-generated content limitations
+   - Accuracy and reliability disclaimers
+   - Copyright and intellectual property risks
+   - User verification responsibilities
+   - Prohibited use cases
+   - Liability limitations specific to AI
+
+### Key Features
+
+- **Placeholder-based**: Uses `{COMPANY_NAME}` and `{DOMAIN}` for easy customization
+- **Strong disclaimers**: Each page includes prominent warning banners
+- **GDPR-aware**: Basic GDPR compliance principles included
+- **SEO-configured**: All pages have `noindex, nofollow` meta tags
+- **Mobile-friendly**: Responsive design using Tailwind CSS
+- **Accessible**: Clean layout with proper heading hierarchy
+
+### Important Warnings
+
+All legal pages include:
+
+1. **Yellow warning banner** at the top:
+   > ⚠️ Document provisoire – Ce texte est fourni uniquement à titre informatif et n'a pas encore été validé par un professionnel du droit.
+
+2. **Red disclaimer** at the bottom emphasizing the need for legal review
+
+### Customization Guide
+
+#### Replace Placeholders
+
+Before launch, replace all instances of:
+- `{COMPANY_NAME}` → Your actual company name
+- `{DOMAIN}` → Your actual domain (e.g., forgeweb.io)
+
+#### Update Company Information
+
+In each legal page, update the contact section with:
+- Official company name
+- Legal entity information
+- Contact email addresses
+- Physical address (if required by your jurisdiction)
+- VAT number (EU businesses)
+
+#### Complete Missing Sections
+
+Some sections are marked **"À DÉFINIR"** (To be defined):
+- Jurisdiction and applicable law
+- Dispute resolution procedures
+- Data Protection Officer contact (if applicable)
+
+### Legal Review Requirements
+
+⚠️ **CRITICAL**: This legal module is a **generic template** and does NOT constitute legal advice.
+
+**Before commercial launch, you MUST:**
+
+1. **Hire a lawyer** specializing in:
+   - Data protection and privacy law (GDPR if EU)
+   - Consumer law (especially for refund policies)
+   - Intellectual property (especially for AI-generated content)
+   - E-commerce and SaaS regulations
+
+2. **Review and adapt** each page to:
+   - Your specific business model
+   - Your target jurisdictions (EU, US, etc.)
+   - Your pricing model (free, paid, subscription, etc.)
+   - Your actual data practices
+   - Your AI usage and limitations
+
+3. **Implement** actual compliance measures:
+   - Cookie consent banner (GDPR requirement)
+   - Privacy controls in your application
+   - Data export/deletion mechanisms
+   - Actual refund processing system
+
+4. **Update regularly**:
+   - When your services change
+   - When regulations change
+   - At least annually for review
+
+### AI Disclaimer Importance
+
+The **AI Disclaimer** page is especially critical for ForgeWeb because:
+
+- **Liability protection**: Clearly states users are responsible for verifying AI-generated content
+- **Copyright risks**: Warns about potential similarity to existing content
+- **Accuracy limitations**: Explains AI "hallucinations" and fact-checking requirements
+- **Regulatory compliance**: Addresses sector-specific restrictions (health, finance, legal, etc.)
+
+**Users MUST understand**: AI-generated content is a starting point, not a finished product.
+
+### Recommended Resources
+
+For legal compliance research:
+- **EU GDPR**: [https://gdpr.eu/](https://gdpr.eu/)
+- **French CNIL**: [https://www.cnil.fr/](https://www.cnil.fr/)
+- **EU Consumer Rights**: [https://europa.eu/youreurope/citizens/consumers/](https://europa.eu/youreurope/citizens/consumers/)
+- **AI Regulations**: Follow EU AI Act developments
+
+### Layout Component
+
+The legal module includes a dedicated `LegalLayout` component (`components/layout/LegalLayout.tsx`) that provides:
+- Consistent header with ForgeWeb branding
+- Clean, centered content area
+- Integrated footer with all legal links
+- Mobile-responsive design
+
+### File Structure
+
+```
+app/
+├── legal/
+│   ├── privacy-policy/
+│   │   └── page.tsx
+│   ├── terms/
+│   │   └── page.tsx
+│   ├── cookies/
+│   │   └── page.tsx
+│   ├── refund-policy/
+│   │   └── page.tsx
+│   └── ai-disclaimer/
+│       └── page.tsx
+components/
+└── layout/
+    └── LegalLayout.tsx
+```
+
+### Maintenance
+
+After legal review and customization:
+- Keep a changelog of legal page modifications
+- Archive previous versions (legal requirement in many jurisdictions)
+- Set calendar reminders for annual review
+- Monitor regulatory changes in your jurisdictions
+
+---
+
+**Remember**: These are TEMPLATE documents. Using them without legal review exposes you to significant legal risks. Budget for professional legal review as part of your launch costs.
+
 ## Licence
 
 MIT
