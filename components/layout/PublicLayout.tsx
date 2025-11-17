@@ -202,15 +202,6 @@ export const PublicLayout: React.FC<PublicLayoutProps> = ({ children }) => {
                     Tarifs
                   </Link>
                 </li>
-              </ul>
-            </div>
-
-            {/* Links - Support */}
-            <div>
-              <h3 className="font-semibold text-sm uppercase tracking-wider mb-4">
-                Support
-              </h3>
-              <ul className="space-y-2">
                 <li>
                   <Link href="/auth/login" className="text-neutral-400 hover:text-white transition-colors">
                     Connexion
@@ -219,6 +210,40 @@ export const PublicLayout: React.FC<PublicLayoutProps> = ({ children }) => {
                 <li>
                   <Link href="/auth/signup" className="text-neutral-400 hover:text-white transition-colors">
                     Inscription
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Links - Légal */}
+            <div>
+              <h3 className="font-semibold text-sm uppercase tracking-wider mb-4">
+                Légal
+              </h3>
+              <ul className="space-y-2">
+                <li>
+                  <Link href="/legal/privacy-policy" className="text-neutral-400 hover:text-white transition-colors">
+                    Confidentialité
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/legal/terms" className="text-neutral-400 hover:text-white transition-colors">
+                    Conditions générales
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/legal/cookies" className="text-neutral-400 hover:text-white transition-colors">
+                    Cookies
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/legal/refund-policy" className="text-neutral-400 hover:text-white transition-colors">
+                    Remboursement
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/legal/ai-disclaimer" className="text-neutral-400 hover:text-white transition-colors">
+                    Avertissement IA
                   </Link>
                 </li>
               </ul>

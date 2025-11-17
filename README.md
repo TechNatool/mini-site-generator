@@ -13,6 +13,7 @@ ForgeWeb est une solution SaaS complète pour créer des sites web professionnel
 - [Technologies](#technologies)
 - [Installation](#installation)
 - [Configuration](#configuration)
+- [Module Légal](#module-légal-bootstrap-edition)
 - [Utilisation](#utilisation)
 - [API](#api)
 - [Scripts](#scripts)
@@ -127,6 +128,111 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 # Limites (Optionnel)
 MAX_SITES_PER_DAY=100
 ```
+
+## Module Légal (Bootstrap Edition)
+
+ForgeWeb inclut un module juridique complet avec 5 pages légales pré-rédigées en français. Ces pages sont fournies **à titre informatif uniquement** et doivent être validées par un professionnel du droit avant utilisation commerciale.
+
+### 📄 Pages disponibles
+
+1. **Politique de Confidentialité** (`/legal/privacy-policy`)
+   - Protection des données personnelles (RGPD)
+   - Droits des utilisateurs
+   - Cookies et tracking
+   - Partage avec tiers (Anthropic, Stripe, Vercel)
+
+2. **Conditions Générales d'Utilisation** (`/legal/terms`)
+   - Règles d'utilisation du service
+   - Responsabilités et garanties
+   - Propriété intellectuelle
+   - Limitation de responsabilité
+
+3. **Politique Cookies** (`/legal/cookies`)
+   - Types de cookies utilisés
+   - Gestion des préférences
+   - Conformité RGPD
+
+4. **Politique de Remboursement** (`/legal/refund-policy`)
+   - Conditions d'annulation
+   - Garantie 14 jours satisfait ou remboursé
+   - Droit de rétractation UE
+
+5. **Avertissement IA** (`/legal/ai-disclaimer`)  ⚠️
+   - **PAGE CRITIQUE POUR PROTECTION LÉGALE**
+   - Limitations du contenu généré par IA
+   - Responsabilités de l'utilisateur
+   - Clause de non-responsabilité forte
+
+### ⚠️ Avertissements importants
+
+Toutes les pages légales incluent :
+
+- **Bannière d'avertissement** en haut de page :
+  > ⚠️ Document provisoire – Ce texte est fourni uniquement à titre informatif et n'a pas encore été validé par un professionnel du droit.
+
+- **Placeholders génériques** :
+  - `{COMPANY_NAME}` → ForgeWeb
+  - `{DOMAIN}` → forgeweb.io
+
+- **Disclaimers renforcés** sur les limitations IA
+
+- **Métadonnées SEO** : `noindex, nofollow` (non indexées par Google)
+
+### 🔧 Personnalisation requise
+
+Avant le lancement commercial, vous DEVEZ :
+
+1. **Consulter un avocat** spécialisé en :
+   - Droit numérique / E-commerce
+   - Protection des données (RGPD)
+   - Intelligence artificielle
+
+2. **Adapter les contenus** à votre situation :
+   - Nom de société / SIREN
+   - Adresse légale
+   - Contacts précis
+   - Spécificités métier
+
+3. **Vérifier la conformité** :
+   - RGPD (Union Européenne)
+   - Lois locales applicables
+   - Réglementations sectorielles
+
+### 📍 Accès aux pages légales
+
+Les liens sont automatiquement ajoutés dans le footer du site :
+
+- Section "Légal" avec 5 liens
+- Accessibles depuis toutes les pages publiques
+- Design cohérent avec le reste du site
+
+### 🛡️ Protection légale - Avertissement IA
+
+La page **"Avertissement IA"** est particulièrement importante car elle :
+
+- Explique les limitations de l'IA Claude
+- Décharge ForgeWeb de responsabilité sur le contenu généré
+- Informe l'utilisateur de ses obligations de vérification
+- Liste les risques (hallucinations, inexactitudes, etc.)
+- Impose la validation humaine avant publication
+
+**Cette page est essentielle pour protéger ForgeWeb contre d'éventuelles réclamations liées au contenu IA.**
+
+### 🚀 Déploiement
+
+Les pages légales sont déjà déployées et accessibles :
+
+```
+https://forgeweb.io/legal/privacy-policy
+https://forgeweb.io/legal/terms
+https://forgeweb.io/legal/cookies
+https://forgeweb.io/legal/refund-policy
+https://forgeweb.io/legal/ai-disclaimer
+```
+
+### ⚖️ Responsabilité
+
+**Important** : Ces documents juridiques sont fournis "EN L'ÉTAT" sans garantie d'aucune sorte. ForgeWeb n'est pas un cabinet d'avocats et ne fournit pas de conseils juridiques. L'utilisation de ces documents est à vos propres risques.
 
 ## Mode NO_AI (pour tests et développement)
 
